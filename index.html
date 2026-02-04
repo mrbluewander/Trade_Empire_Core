@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏛️ Trade Empire Core - 統帥指揮中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5 );
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1, h2, h3 {
+            color: #0f3460;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #e94560;
+            font-size: 2.5em;
+            border-bottom: none;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .status-dot {
+            height: 15px;
+            width: 15px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        .status-dot.green { background-color: #4CAF50; }
+        .status-dot.red { background-color: #f44336; }
+        .status-dot.yellow { background-color: #ffeb3b; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        .api-input-group {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            background-color: #0a1128;
+        }
+        .api-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #a0a0a0;
+        }
+        .api-input-group input[type="password"] {
+            width: calc(100% - 120px);
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            background-color: #2e3b5e;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        .api-input-group button {
+            padding: 10px 20px;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .api-input-group button:hover {
+            background-color: #d8304a;
+        }
+        .api-response, .log-output {
+            background-color: #0a1128;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        .log-output {
+            height: 300px;
+        }
+        .section-content {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .section-content p {
+            margin-bottom: 8px;
+        }
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        .action-buttons button {
+            padding: 12px 25px;
+            background-color: #0f3460;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            flex-grow: 1;
+        }
+        .action-buttons button:hover {
+            background-color: #0c2a4f;
+        }
+        .action-buttons button.primary {
+            background-color: #e94560;
+        }
+        .action-buttons button.primary:hover {
+            background-color: #d8304a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Trade Empire Core - 統帥指揮中心 🏛️</h1>
+            <p>AI 交易帝國核心系統狀態與決策面板</p>
+            <div class="status-indicator">
+                <span id="systemStatusDot" class="status-dot red"></span>
+                <span id="systemStatusText">系統狀態: 🔴 離線</span>
+            </div>
+        </div>
+
+        <div class="api-input-group">
+            <label for="apiKey">輸入您的 Google Gemini API Key (Gemini 1.5 Flash):</label>
+            <input type="password" id="apiKey" placeholder="在此貼上您的 AIza... API Key">
+            <button onclick="setApiKey()">設定 API Key</button>
+            <p id="apiKeyStatus" style="margin-top: 10px; color: #a0a0a0;">當前 API Key 狀態: 未設置</p>
+        </div>
+
+        <h2>🧠 大腦通訊 (Gemini API)</h2>
+        <div class="action-buttons">
+            <button onclick="testGeminiConnection()" class="primary">測試 Gemini 連線 (Ping)</button>
+            <button onclick="getDailySummary()">獲取每日市場總結</button>
+            <button onclick="requestDecision()">請求交易決策 (觸發代理人)</button>
+        </div>
+        <div id="geminiResponse" class="api-response">
+            等待指令...
+        </div>
+
+        <h2>📊 系統日誌與代理人活動</h2>
+        <div id="logOutput" class="log-output">
+            系統啟動中...
+        </div>
+        
+        <h2>⚙️ 快速操作</h2>
+        <div class="action-buttons">
+            <button onclick="triggerGithubUpdate()">強制 GitHub 更新 (拉取代碼)</button>
+            <button onclick="viewTradingLog()">查看本地交易日誌</button>
+        </div>
+
+        <h3>核心系統狀態</h3>
+        <div class="section-content">
+            <p>版本: <span id="systemVersion">v0.1.1 (Beta)</span></p>
+            <p>最後更新: <span id="lastUpdated">2026-02-04 01:13 CST</span></p>
+            <p>本地服務: <span id="localService">http://localhost:8000 (需運行 Perpetual_Agent.py )</span></p>
+        </div>
+    </div>
+
+    <script>
+        let globalApiKey = '';
+        const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+        const SYSTEM_VERSION = "v0.1.1 (Beta )";
+        const PERPETUAL_AGENT_HEALTH_CHECK_URL = "http://localhost:8000/health";
+        const PERPETUAL_AGENT_DECISION_URL = "http://localhost:8000/webhook/tradingview";
+
+        function appendLog(message, type = 'info' ) {
+            const logOutput = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleString();
+            let color = '#e0e0e0';
+            if (type === 'success') color = '#4CAF50';
+            else if (type === 'error') color = '#f44336';
+            else if (type === 'warning') color = '#ffeb3b';
+            else if (type === 'api') color = '#00bcd4';
+
+            logOutput.innerHTML += `<p style="color: ${color};"><span>[${timestamp}]</span> ${message}</p>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        function setApiKey() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const apiKeyStatus = document.getElementById('apiKeyStatus');
+            const key = apiKeyInput.value.trim();
+
+            if (key) {
+                globalApiKey = key;
+                apiKeyStatus.textContent = `當前 API Key 狀態: ✅ 已設定 (Key 以 * 隱藏)`;
+                apiKeyStatus.style.color = '#4CAF50';
+                appendLog("API Key 已成功設定。", 'success');
+                testGeminiConnection(); 
+            } else {
+                globalApiKey = '';
+                apiKeyStatus.textContent = `當前 API Key 狀態: ❌ 未設置`;
+                apiKeyStatus.style.color = '#f44336';
+                appendLog("API Key 未輸入。", 'error');
+                updateSystemStatus('🔴 離線', 'red');
+            }
+        }
+
+        async function testGeminiConnection() {
+            if (!globalApiKey) {
+                appendLog("請先設定 Gemini API Key。", 'warning');
+                updateSystemStatus('🔴 離線', 'red');
+                return;
+            }
+            appendLog("正在測試 Gemini API 連線 (Ping)...", 'api');
+            try {
+                const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${globalApiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: "ping" }]
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        document.getElementById('geminiResponse').textContent = "連線成功！Gemini 回應: " + JSON.stringify(data.candidates[0].content.parts[0].text);
+                        appendLog("Gemini API 連線成功！", 'success');
+                        updateSystemStatus('🟢 就緒', 'green');
+                        checkPerpetualAgentHealth();
+                    } else {
+                         document.getElementById('geminiResponse').textContent = "Gemini 連線成功，但回應格式異常。";
+                         appendLog("Gemini 連線成功，但回應格式異常。", 'warning');
+                         updateSystemStatus('🟡 異常', 'yellow');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('geminiResponse').textContent = `Gemini 連線失敗: ${response.status} - ${JSON.stringify(errorData)}`;
+                    appendLog(`Gemini API 連線失敗: ${response.status} - ${JSON.stringify(errorData)}`, 'error');
+                    updateSystemStatus('🔴 錯誤', 'red');
+                }
+            } catch (error) {
+                document.getElementById('geminiResponse').textContent = `Gemini 連線發生錯誤: ${error.message}`;
+                appendLog(`Gemini 連線發生錯誤: ${error.message}`, 'error');
+                updateSystemStatus('🔴 錯誤', 'red');
+            }
+        }
+
+        async function getDailySummary() {
+            if (!globalApiKey) {
+                appendLog("請先設定 Gemini API Key。", 'warning');
+                return;
+            }
+            appendLog("正在請求 Gemini 生成每日市場總結...", 'api');
+            document.getElementById('geminiResponse').textContent = "請求中...";
+            try {
+                const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${globalApiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: "請生成一份關於台灣加權指數與台指期的今日市場總結與明日預測。著重於技術分析與關鍵價位。" }]
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        const summary = data.candidates[0].content.parts[0].text;
+                        document.getElementById('geminiResponse').textContent = summary;
+                        appendLog("每日市場總結已獲取。", 'success');
+                    } else {
+                         document.getElementById('geminiResponse').textContent = "獲取總結成功，但回應格式異常。";
+                         appendLog("獲取總結成功，但回應格式異常。", 'warning');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('geminiResponse').textContent = `獲取總結失敗: ${response.status} - ${JSON.stringify(errorData)}`;
+                    appendLog(`獲取總結失敗: ${response.status} - ${JSON.stringify(errorData)}`, 'error');
+                }
+            } catch (error) {
+                document.getElementById('geminiResponse').textContent = `獲取總結發生錯誤: ${error.message}`;
+                appendLog(`獲取總結發生錯誤: ${error.message}`, 'error');
+            }
+        }
+        
+        async function requestDecision() {
+            if (!globalApiKey) {
+                appendLog("請先設定 Gemini API Key。", 'warning');
+                return;
+            }
+            appendLog("正在請求代理人執行交易決策...", 'api');
+            document.getElementById('geminiResponse').textContent = "請求代理人中...";
+            try {
+                const mockSignal = {
+                    "symbol": "TXFUSD",
+                    "action": "BUY",
+                    "price": 18500,
+                    "timeframe": "15m",
+                    "timestamp": new Date().toISOString()
+                };
+
+                const response = await fetch(PERPETUAL_AGENT_DECISION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(mockSignal)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('geminiResponse').textContent = `代理人回應: ${JSON.stringify(data)}`;
+                    appendLog(`代理人已接收決策請求。結果: ${JSON.stringify(data)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    document.getElementById('geminiResponse').textContent = `代理人決策請求失敗: ${response.status} - ${errorText}`;
+                    appendLog(`代理人決策請求失敗: ${response.status} - ${errorText}`, 'error');
+                }
+
+            } catch (error) {
+                document.getElementById('geminiResponse').textContent = `請求代理人發生錯誤: ${error.message}. 請確認 Perpetual_Agent.py 是否已在本地運行。`;
+                appendLog(`請求代理人發生錯誤: ${error.message}. 請確認 Perpetual_Agent.py 是否已在本地運行。`, 'error');
+            }
+        }
+
+        async function checkPerpetualAgentHealth() {
+            appendLog("正在檢查 Perpetual Agent (本地代理人) 健康狀態...", 'info');
+            try {
+                const response = await fetch(PERPETUAL_AGENT_HEALTH_CHECK_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    appendLog(`Perpetual Agent 狀態: ✅ ${data.message}`, 'success');
+                    updateSystemStatus('🟢 就緒', 'green');
+                } else {
+                    appendLog(`Perpetual Agent 狀態: ❌ 無法連接 (錯誤: ${response.status})`, 'error');
+                    updateSystemStatus('🟡 注意', 'yellow');
+                }
+            } catch (error) {
+                appendLog(`無法連接 Perpetual Agent (本地代理人)。請確認 'python Perpetual_Agent.py' 是否正在運行。錯誤: ${error.message}`, 'error');
+                updateSystemStatus('🟡 注意', 'yellow');
+            }
+        }
+
+        function triggerGithubUpdate() {
+            appendLog("正在嘗試觸發 GitHub 倉庫更新 (此功能需由 Perpetual_Agent.py 或 n8n 實現)。", 'warning');
+            appendLog("建議手動執行 `git pull` 以更新本地代碼。", 'info');
+        }
+
+        function viewTradingLog() {
+            appendLog("正在嘗試查看本地交易日誌 (此功能需從 Perpetual_Agent.py 讀取)。", 'warning');
+            appendLog("建議直接查看 'logs/trading_log.csv' 文件。", 'info');
+        }
+
+        function updateSystemStatus(statusText, statusColor) {
+            const dot = document.getElementById('systemStatusDot');
+            const text = document.getElementById('systemStatusText');
+            dot.className = `status-dot ${statusColor}`;
+            text.textContent = `系統狀態: ${statusText}`;
+
+            if (statusColor === 'green') {
+                dot.style.animation = 'pulse 1.5s infinite';
+                const styleSheet = document.styleSheets[0];
+                const keyframesRule = `@keyframes pulse {
+                    0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+                    70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+                }`;
+                for (let i = 0; i < styleSheet.cssRules.length; i++) {
+                    if (styleSheet.cssRules[i].name === 'pulse') {
+                        styleSheet.deleteRule(i);
+                        break;
+                    }
+                }
+                styleSheet.insertRule(keyframesRule, styleSheet.cssRules.length);
+            } else {
+                dot.style.animation = 'none';
+                dot.style.boxShadow = 'none';
+            }
+        }
+
+        document.getElementById('systemVersion').textContent = SYSTEM_VERSION;
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        appendLog("統帥指揮中心啟動成功，請設定您的 API Key。", 'info');
+    </script>
+</body>
+</html>
