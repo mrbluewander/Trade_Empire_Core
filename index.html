@@ -54,7 +54,9 @@
                 log(`✅ 偵測到您的帳號支援以下模型: \n${models.join(', ')}`, "#4ecca3");
 
                 // 第二步：從中挑一個最適合的來連線
-               let targetModel = "gemini-2.0-flash";
+              // 強制鎖定 2.0 穩定版
+const targetModel = "gemini-2.0-flash"; 
+log(`🎯 執行強制鎖定測試: ${targetModel}`);
 
                 const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
                 const pingRes = await fetch(pingUrl, {
