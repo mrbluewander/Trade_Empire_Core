@@ -2,74 +2,55 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Trade Empire Core - 統帥指揮中心</title>
+    <title>Trade Empire Core - 最終突破版</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
     <style>
-        body { background-color: #1a1a2e; color: #ffffff; font-family: sans-serif; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 90%; max-width: 800px; border: 3px solid #4ecca3; padding: 30px; border-radius: 20px; background: #16213e; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
-        h1 { text-align: center; color: #4ecca3; text-shadow: 2px 2px #000; }
-        #log-output { background: #000; color: #00ff00; padding: 15px; height: 300px; overflow-y: auto; font-family: monospace; border: 2px solid #333; margin-top: 20px; white-space: pre-wrap; font-size: 1.1em; }
-        .input-box { text-align: center; margin: 20px 0; }
-        input { width: 80%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; margin-bottom: 15px; }
-        .btn-run { width: 100%; padding: 15px; background: #e94560; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #900; }
-        .btn-run:active { transform: translateY(4px); box-shadow: 0 0 #900; }
+        body { background-color: #0d1117; color: #58a6ff; font-family: monospace; padding: 20px; }
+        .box { max-width: 800px; margin: 0 auto; border: 1px solid #30363d; padding: 20px; border-radius: 10px; background: #161b22; }
+        #log { background: #000; color: #39ff14; padding: 15px; height: 300px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
+        input { width: 70%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; }
+        button { padding: 10px 20px; background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🏛️ 統帥指揮中心 (核心自癒版)</h1>
-        <div class="input-box">
-            <input type="password" id="api-key" placeholder="在此貼上新 API Key (AIza...)">
-            <button class="btn-run" onclick="startSystem()">🚀 啟動系統並測試連線</button>
-        </div>
-        <div id="log-output">>> 系統待命中。請輸入 Key 後點擊啟動...</div>
+    <div class="box">
+        <h2 style="color:#79c0ff">🏛️ 統帥指揮中心 (官方 SDK 突破版)</h2>
+        <input type="password" id="key" placeholder="貼上新 Key (AIza...)">
+        <button onclick="connect()">⚡ 官方路徑點火</button>
+        <div id="log">>> 等待統帥授權...</div>
     </div>
 
-    <script>
-        const logBox = document.getElementById('log-output');
-        function log(msg, color='#00ff00') {
-            logBox.innerHTML += `\n<span style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</span>`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        async function startSystem() {
-            const key = document.getElementById('api-key').value.trim();
-            if (!key) {
-                alert("統帥，請先輸入 API Key！");
-                return;
-            }
+        window.connect = async function() {
+            const key = document.getElementById('key').value;
+            const logBox = document.getElementById('log');
+            const log = (m, c) => logBox.innerHTML += `<div style="color:${c}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
 
-            log("📡 正在嘗試穿透 Google 伺服器...", "#4ecca3");
-            
-            // 暴力測試多個可能的模型路徑
-            const models = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro"];
-            let success = false;
+            if(!key) return alert("請輸入 Key");
+            log("📡 啟動 Google 官方 SDK 通訊模組...", "#79c0ff");
 
-            for (let m of models) {
-                if (success) break;
-                log(`正在嘗試通道: ${m}...`);
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({contents: [{parts: [{text: "Hi"}]}]})
-                    });
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        log(`🟢 連線成功！偵測到可用模型: ${m}`, "#4ecca3");
-                        log("⚖️ 帝國大腦已就緒，準備分析台指期數據。", "#4ecca3");
-                        success = true;
-                    } else {
-                        log(`❌ ${m} 拒絕訪問: ${data.error.message}`, "#ff4d4d");
-                    }
-                } catch (e) {
-                    log(`⚠️ 網絡路徑阻塞`, "#888");
+            try {
+                const genAI = new GoogleGenerativeAI(key);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                log("🧠 正在與 Gemini 1.5 Flash 進行神經元握手...", "#79c0ff");
+                const result = await model.generateContent("ping");
+                const response = await result.response;
+                
+                if(response.text()) {
+                    log("🟢 【連線成功】大腦已就緒！系統進入 100% 運作狀態。", "#39ff14");
                 }
-            }
-
-            if (!success) {
-                log("🛑 所有已知通道均失敗。請確認您的 Key 是否為剛建立的新 Project 鑰匙。", "red");
+            } catch (err) {
+                log(`🔴 突破失敗: ${err.message}`, "#ff7b72");
+                log("💡 可能原因：Key 尚未生效（剛建立需等 3 分鐘）或該專案未開啟 Gemini API 權限。", "#8b949e");
             }
         }
     </script>
