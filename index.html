@@ -13,15 +13,15 @@
     <style>
         body { background-color: #0d1117; color: #58a6ff; font-family: monospace; padding: 20px; }
         .box { max-width: 800px; margin: 0 auto; border: 1px solid #30363d; padding: 20px; border-radius: 10px; background: #161b22; }
-        #log { background: #000; color: #39ff14; padding: 15px; height: 300px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
-        input { width: 70%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; }
-        button { padding: 10px 20px; background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
+        #log { background: #000; color: #39ff14; padding: 15px; height: 350px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; font-size: 1.1em; }
+        input { width: 75%; padding: 12px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 5px; }
+        button { padding: 12px 24px; background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
     </style>
 </head>
 <body>
     <div class="box">
         <h2 style="color:#79c0ff">🏛️ 統帥指揮中心 (官方 SDK 突破版)</h2>
-        <input type="password" id="key" placeholder="貼上新 Key (AIza...)">
+        <input type="password" id="key" placeholder="貼上新 Key (AIza...w8PE)">
         <button onclick="connect()">⚡ 官方路徑點火</button>
         <div id="log">>> 等待統帥授權...</div>
     </div>
@@ -30,27 +30,34 @@
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
         window.connect = async function() {
-            const key = document.getElementById('key').value;
+            const key = document.getElementById('key').value.trim();
             const logBox = document.getElementById('log');
             const log = (m, c) => logBox.innerHTML += `<div style="color:${c}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
 
             if(!key) return alert("請輸入 Key");
+            
+            logBox.innerHTML = ""; // 清空舊日誌
             log("📡 啟動 Google 官方 SDK 通訊模組...", "#79c0ff");
 
             try {
+                // 使用官方 SDK 建立連線
                 const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 
                 log("🧠 正在與 Gemini 1.5 Flash 進行神經元握手...", "#79c0ff");
+                
+                // 執行真正的生成測試
                 const result = await model.generateContent("ping");
                 const response = await result.response;
+                const text = response.text();
                 
-                if(response.text()) {
+                if(text) {
                     log("🟢 【連線成功】大腦已就緒！系統進入 100% 運作狀態。", "#39ff14");
+                    log(`AI 回應: ${text}`, "#39ff14");
                 }
             } catch (err) {
                 log(`🔴 突破失敗: ${err.message}`, "#ff7b72");
-                log("💡 可能原因：Key 尚未生效（剛建立需等 3 分鐘）或該專案未開啟 Gemini API 權限。", "#8b949e");
+                log("💡 偵錯筆記：如果錯誤是 'API key not valid'，請確認是否貼錯舊 Key。", "#8b949e");
             }
         }
     </script>
