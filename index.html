@@ -54,8 +54,7 @@
                 log(`✅ 偵測到您的帳號支援以下模型: \n${models.join(', ')}`, "#4ecca3");
 
                 // 第二步：從中挑一個最適合的來連線
-                let targetModel = models.find(m => m.includes('1.5-flash')) || models.find(m => m.includes('pro')) || models[0];
-                log(`🎯 自動選擇最佳目標: ${targetModel}`);
+               let targetModel = "gemini-2.0-flash";
 
                 const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
                 const pingRes = await fetch(pingUrl, {
