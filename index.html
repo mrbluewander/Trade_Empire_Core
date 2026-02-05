@@ -4,87 +4,74 @@
     <meta charset="UTF-8">
     <title>Trade Empire Core - 統帥指揮中心</title>
     <style>
-        body { background-color: #1a1a2e; color: #e94560; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; border: 2px solid #0f3460; padding: 20px; border-radius: 15px; background: #16213e; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        h1 { text-align: center; color: #4ecca3; text-transform: uppercase; letter-spacing: 3px; }
-        .status-panel { display: flex; justify-content: space-between; padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 20px; }
-        .api-input-group { background: #1a1a2e; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        input { width: 70%; padding: 10px; border-radius: 5px; border: 1px solid #4ecca3; background: #16213e; color: white; }
-        button { padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #d03d54; }
-        #log-output { background: #000; color: #00ff00; padding: 15px; height: 300px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; border-radius: 5px; border: 1px solid #333; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 10px; }
-        .success { color: #4ecca3; }
-        .error { color: #ff4d4d; }
+        body { background-color: #1a1a2e; color: #e94560; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; border: 2px solid #0f3460; padding: 20px; border-radius: 15px; background: #16213e; }
+        h1 { text-align: center; color: #4ecca3; letter-spacing: 2px; }
+        #log-output { background: #000; color: #00ff00; padding: 15px; height: 350px; overflow-y: auto; font-family: monospace; border: 1px solid #333; margin-top: 20px; }
+        button { padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        input { width: 60%; padding: 10px; background: #1a1a2e; color: white; border: 1px solid #4ecca3; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏛️ Trade Empire Core 🏛️</h1>
-        <div class="status-panel">
-            <span>系統狀態: <span id="sys-status">⚪ 待命</span></span>
-            <span>版本: v1.0.0 (駭客重構版)</span>
-        </div>
-
-        <div class="api-input-group">
-            <input type="password" id="api-key" placeholder="貼上您的 Gemini API Key...">
+        <h1>🏛️ 統帥戰情室 (自動校準版)</h1>
+        <div style="text-align:center; margin-bottom: 20px;">
+            <input type="password" id="api-key" placeholder="輸入 Gemini API Key...">
             <button onclick="saveKey()">設定 API Key</button>
-            <p id="key-status" style="font-size: 0.8em; margin-top: 10px;"></p>
         </div>
-
-        <div class="btn-group">
-            <button style="background: #4ecca3;" onclick="pingGemini()">⚡ 測試連線 (Ping)</button>
-            <button style="background: #3944f7;" onclick="alert('本地代理連線開發中...')">📊 讀取台指期日誌</button>
+        <div style="text-align:center;">
+            <button style="background:#4ecca3;" onclick="bruteForcePing()">⚡ 暴力連線測試</button>
         </div>
-
-        <div id="log-output">系統初始化完成。等待統帥指令...</div>
+        <div id="log-output">等待統帥指令...</div>
     </div>
 
     <script>
-        let apiKey = localStorage.getItem('gemini_key') || '';
-        if(apiKey) document.getElementById('key-status').innerText = "✅ Key 已從本地載入";
-
-        function log(msg, type='') {
-            const output = document.getElementById('log-output');
-            const time = new Date().toLocaleTimeString();
-            const color = type === 'error' ? '#ff4d4d' : (type === 'success' ? '#4ecca3' : '#00ff00');
-            output.innerHTML += `<div>[${time}] <span style="color:${color}">${msg}</span></div>`;
-            output.scrollTop = output.scrollHeight;
+        function log(msg, color='#00ff00') {
+            const out = document.getElementById('log-output');
+            out.innerHTML += `<div>[${new Date().toLocaleTimeString()}] <span style="color:${color}">${msg}</span></div>`;
+            out.scrollTop = out.scrollHeight;
         }
 
         function saveKey() {
-            const val = document.getElementById('api-key').value;
-            if(val) {
-                localStorage.setItem('gemini_key', val);
-                apiKey = val;
-                log("API Key 設定成功。", "success");
-            }
+            const key = document.getElementById('api-key').value;
+            localStorage.setItem('trade_key', key);
+            log("API Key 已儲存至本地。", "#4ecca3");
         }
 
-        async function pingGemini() {
-            if(!apiKey) return log("錯誤: 請先設定 API Key", "error");
-            log("正在穿透連線至 Google Gemini v1 穩定通道...");
-            
-            // 駭客思維：使用最穩定的 v1 端點與標準 JSON 格式
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
-                });
+        async function bruteForcePing() {
+            const key = localStorage.getItem('trade_key');
+            if(!key) return log("錯誤: 未偵測到 API Key", "red");
 
-                const data = await response.json();
-                if (response.ok) {
-                    log("🟢 連線成功！大腦已就緒。統帥，請下令。", "success");
-                    document.getElementById('sys-status').innerText = "🟢 在線";
-                } else {
-                    log(`🔴 連線失敗: ${data.error.message}`, "error");
+            // 駭客策略：一次掃描所有可能的 API 路徑
+            const endpoints = [
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+            ];
+
+            log("開始全頻段掃描 Google API 通道...");
+
+            for(let url of endpoints) {
+                log(`嘗試路徑: ${url.split('models/')[1].split(':')[0]}...`);
+                try {
+                    const res = await fetch(`${url}?key=${key}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({contents: [{parts: [{text: "hi"}]}]})
+                    });
+                    const data = await res.json();
+                    if(res.ok) {
+                        log(`🟢 成功！偵測到可用通道: ${url}`, "#4ecca3");
+                        log("系統已就緒，統帥請下令。", "#4ecca3");
+                        return;
+                    } else {
+                        log(`❌ 失敗: ${data.error.message}`, "#ff4d4d");
+                    }
+                } catch(e) {
+                    log(`⚠️ 網絡阻塞`, "#888");
                 }
-            } catch (err) {
-                log(`🔴 網絡攔截或錯誤: ${err}`, "error");
             }
+            log("🛑 所有已知通道均告失敗。請檢查 Google AI Studio 是否已啟用 API。", "red");
         }
     </script>
 </body>
