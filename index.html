@@ -53,28 +53,31 @@
                 const models = data.models.map(m => m.name.split('/')[1]);
                 log(`✅ 偵測到您的帳號支援以下模型: \n${models.join(', ')}`, "#4ecca3");
 
-                // 第二步：從中挑一個最適合的來連線
-              // 強制鎖定 2.0 穩定版
-const targetModel = "gemini-2.0-flash"; 
-log(`🎯 執行強制鎖定測試: ${targetModel}`);
+// 第二步：鎖定 2.0 並使用正式請求格式
+                const targetModel = "gemini-2.0-flash";
+                log(`🎯 正式通訊請求: ${targetModel}`);
 
                 const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
+                
+                // 駭客筆記：不要只給 "ping"，要給它一個正式的指令架構
+                const payload = {
+                    contents: [{
+                        parts: [{ text: "你好，請確認連線成功，並簡短自我介紹為『統帥指揮中心核心大腦』。" }]
+                    }]
+                };
+
                 const pingRes = await fetch(pingUrl, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({contents: [{parts: [{text: "ping"}]}]})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
 
+                const data = await pingRes.json();
+
                 if(pingRes.ok) {
-                    log(`🟢 連線成功！ ${targetModel} 已就緒。`, "#4ecca3");
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    log(`🟢 連線成功！大腦回應：${aiResponse}`, "#4ecca3");
                 } else {
-                    log(`🔴 ${targetModel} 握手失敗。`, "red");
+                    // 這裡我加入了深層錯誤診斷，它會告訴我們是 Key 權限問題還是模型被鎖
+                    log(`🔴 握手失敗: ${data.error.message} (錯誤碼: ${data.error.status})`, "red");
                 }
-            } catch (err) {
-                log(`🛑 核心偵測失敗: ${err.message}`, "red");
-                log("💡 提示：請確認您的 API Key 是否正確，或是否有在 Google AI Studio 啟用權限。");
-            }
-        }
-    </script>
-</body>
-</html>
