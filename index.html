@@ -4,23 +4,22 @@
     <meta charset="UTF-8">
     <title>Trade Empire Core - 統帥指揮中心</title>
     <style>
-        body { background-color: #1a1a2e; color: #e94560; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; border: 2px solid #0f3460; padding: 20px; border-radius: 15px; background: #16213e; }
-        h1 { text-align: center; color: #4ecca3; letter-spacing: 2px; }
-        #log-output { background: #000; color: #00ff00; padding: 15px; height: 350px; overflow-y: auto; font-family: monospace; border: 1px solid #333; margin-top: 20px; }
-        button { padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        body { background-color: #1a1a2e; color: #e94560; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; border: 2px solid #0f3460; padding: 20px; border-radius: 15px; background: #16213e; }
+        #log-output { background: #000; color: #00ff00; padding: 15px; height: 350px; overflow-y: auto; font-family: monospace; border: 1px solid #333; margin-top: 20px; white-space: pre-wrap; }
+        button { padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; font-weight: bold; }
         input { width: 60%; padding: 10px; background: #1a1a2e; color: white; border: 1px solid #4ecca3; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏛️ 統帥戰情室 (自動校準版)</h1>
+        <h1 style="text-align:center; color:#4ecca3;">🏛️ 統帥指揮中心 (核心自癒版)</h1>
         <div style="text-align:center; margin-bottom: 20px;">
             <input type="password" id="api-key" placeholder="輸入 Gemini API Key...">
             <button onclick="saveKey()">設定 API Key</button>
         </div>
         <div style="text-align:center;">
-            <button style="background:#4ecca3;" onclick="bruteForcePing()">⚡ 暴力連線測試</button>
+            <button style="background:#4ecca3;" onclick="smartConnect()">⚡ 智能掃描連線</button>
         </div>
         <div id="log-output">等待統帥指令...</div>
     </div>
@@ -28,50 +27,52 @@
     <script>
         function log(msg, color='#00ff00') {
             const out = document.getElementById('log-output');
-            out.innerHTML += `<div>[${new Date().toLocaleTimeString()}] <span style="color:${color}">${msg}</span></div>`;
+            out.innerHTML += `\n[${new Date().toLocaleTimeString()}] <span style="color:${color}">${msg}</span>`;
             out.scrollTop = out.scrollHeight;
         }
 
         function saveKey() {
             const key = document.getElementById('api-key').value;
-            localStorage.setItem('trade_key', key);
-            log("API Key 已儲存至本地。", "#4ecca3");
+            if(key) { localStorage.setItem('trade_key', key); log("API Key 儲存成功。", "#4ecca3"); }
         }
 
-        async function bruteForcePing() {
+        async function smartConnect() {
             const key = localStorage.getItem('trade_key');
-            if(!key) return log("錯誤: 未偵測到 API Key", "red");
+            if(!key) return log("錯誤: 請先設定 API Key", "red");
 
-            // 駭客策略：一次掃描所有可能的 API 路徑
-            const endpoints = [
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-                "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
-            ];
+            log("🚀 啟動智能掃描模式... 正在偵測您的可用模型...");
+            
+            // 第一步：先問 Google 你家有哪些模型可以用
+            try {
+                const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
+                const res = await fetch(listUrl);
+                const data = await res.json();
+                
+                if(!res.ok) throw new Error(data.error.message);
 
-            log("開始全頻段掃描 Google API 通道...");
+                const models = data.models.map(m => m.name.split('/')[1]);
+                log(`✅ 偵測到您的帳號支援以下模型: \n${models.join(', ')}`, "#4ecca3");
 
-            for(let url of endpoints) {
-                log(`嘗試路徑: ${url.split('models/')[1].split(':')[0]}...`);
-                try {
-                    const res = await fetch(`${url}?key=${key}`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({contents: [{parts: [{text: "hi"}]}]})
-                    });
-                    const data = await res.json();
-                    if(res.ok) {
-                        log(`🟢 成功！偵測到可用通道: ${url}`, "#4ecca3");
-                        log("系統已就緒，統帥請下令。", "#4ecca3");
-                        return;
-                    } else {
-                        log(`❌ 失敗: ${data.error.message}`, "#ff4d4d");
-                    }
-                } catch(e) {
-                    log(`⚠️ 網絡阻塞`, "#888");
+                // 第二步：從中挑一個最適合的來連線
+                let targetModel = models.find(m => m.includes('1.5-flash')) || models.find(m => m.includes('pro')) || models[0];
+                log(`🎯 自動選擇最佳目標: ${targetModel}`);
+
+                const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
+                const pingRes = await fetch(pingUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contents: [{parts: [{text: "ping"}]}]})
+                });
+
+                if(pingRes.ok) {
+                    log(`🟢 連線成功！ ${targetModel} 已就緒。`, "#4ecca3");
+                } else {
+                    log(`🔴 ${targetModel} 握手失敗。`, "red");
                 }
+            } catch (err) {
+                log(`🛑 核心偵測失敗: ${err.message}`, "red");
+                log("💡 提示：請確認您的 API Key 是否正確，或是否有在 Google AI Studio 啟用權限。");
             }
-            log("🛑 所有已知通道均告失敗。請檢查 Google AI Studio 是否已啟用 API。", "red");
         }
     </script>
 </body>
