@@ -1,65 +1,322 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>Trade Empire Core - 最終突破版</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
-    </script>
-    <style>
-        body { background-color: #0d1117; color: #58a6ff; font-family: monospace; padding: 20px; }
-        .box { max-width: 800px; margin: 0 auto; border: 1px solid #30363d; padding: 20px; border-radius: 10px; background: #161b22; }
-        #log { background: #000; color: #39ff14; padding: 15px; height: 350px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; font-size: 1.1em; }
-        input { width: 75%; padding: 12px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 5px; }
-        button { padding: 12px 24px; background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Empire Core — 指揮中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080c10;--bg2:#0d1520;--bg3:#111d2e;
+    --border:#1a3a5c;--border2:#1e4976;
+    --gold:#c9a84c;--gold2:#e8c97a;
+    --silver:#8ab4cc;--silver2:#b8d4e8;
+    --green:#39e07a;--red:#e05050;
+    --text:#d4e8f0;--text2:#7a9bb5;--text3:#4a6a80;
+    --accent:#1a6aaa;--accent2:#2288dd;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,106,170,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,106,170,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .layout{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100vh;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:rgba(13,21,32,0.95);position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;gap:14px;}
+  .logo-icon{width:38px;height:38px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;}
+  .logo-icon::before{content:'';position:absolute;inset:3px;border:1px solid rgba(201,168,76,0.3);}
+  .logo-icon svg{width:20px;height:20px;}
+  .logo-text h1{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold2);line-height:1;}
+  .logo-text p{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
+  .header-status{display:flex;align-items:center;gap:16px;}
+  .ds-badge{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;padding:3px 8px;border:1px solid var(--accent);background:rgba(26,106,170,0.1);}
+  .status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);background:var(--bg2);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse 2s infinite;}
+  .dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .dot.off{background:var(--red);box-shadow:0 0 6px var(--red);animation:none;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:1px;}
+  .main{display:grid;grid-template-columns:260px 1fr 280px;height:calc(100vh - 71px);}
+  .sidebar-left{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .sidebar-right{border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .sec-hdr{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);background:rgba(17,29,46,0.5);}
+  .agent-list{padding:8px;}
+  .agent-card{padding:12px 14px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.2s;background:var(--bg2);position:relative;overflow:hidden;}
+  .agent-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);transform:scaleY(0);transition:transform 0.2s;}
+  .agent-card:hover,.agent-card.active{border-color:var(--accent);background:var(--bg3);}
+  .agent-card:hover::before,.agent-card.active::before{transform:scaleY(1);}
+  .agent-card.ga::before{background:var(--gold);}
+  .agent-card.ga:hover,.agent-card.ga.active{border-color:var(--gold);}
+  .ag-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;}
+  .ag-role{font-size:11px;color:var(--text2);margin-bottom:6px;}
+  .ag-status{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);}
+  .market-panel{padding:8px;}
+  .mkt-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);margin-bottom:5px;background:var(--bg2);}
+  .mkt-sym{font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:600;color:var(--gold2);}
+  .mkt-price{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);}
+  .mkt-chg{font-family:'Share Tech Mono',monospace;font-size:11px;}
+  .up{color:var(--green);}.dn{color:var(--red);}
+  .main-center{display:flex;flex-direction:column;overflow:hidden;}
+  .center-top{padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(13,21,32,0.6);}
+  .cmd-title{font-size:11px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;color:var(--text3);margin-bottom:10px;}
+  .quick-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .qa{padding:6px 14px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .qa:hover{background:var(--accent);border-color:var(--accent2);color:white;}
+  .qa.g{border-color:rgba(201,168,76,0.4);color:var(--gold);}
+  .qa.g:hover{background:rgba(201,168,76,0.15);border-color:var(--gold);}
+  .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
+  .chat-area::-webkit-scrollbar{width:4px;}
+  .chat-area::-webkit-scrollbar-thumb{background:var(--border2);}
+  .msg{display:flex;gap:12px;max-width:88%;}
+  .msg.u{align-self:flex-end;flex-direction:row-reverse;}
+  .avatar{width:34px;height:34px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0;background:var(--bg2);}
+  .bubble{padding:12px 16px;border:1px solid var(--border);background:var(--bg2);line-height:1.6;font-size:14px;}
+  .msg.u .bubble{border-color:var(--accent);background:rgba(26,106,170,0.1);color:var(--silver2);}
+  .msg-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-top:5px;}
+  .msg.u .msg-time{text-align:right;}
+  .ag-tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;margin-bottom:5px;}
+  .input-area{padding:16px 20px;border-top:1px solid var(--border);background:rgba(13,21,32,0.95);}
+  .api-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
+  .api-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;white-space:nowrap;}
+  .api-inp{flex:1;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;}
+  .api-inp::placeholder{color:var(--text3);}
+  .conn-btn{padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;}
+  .conn-btn:hover{background:rgba(201,168,76,0.15);color:var(--gold2);}
+  .chat-row{display:flex;gap:8px;}
+  .chat-inp{flex:1;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;resize:none;height:48px;}
+  .chat-inp::placeholder{color:var(--text3);}
+  .send-btn{padding:0 24px;background:var(--accent);border:1px solid var(--accent2);color:white;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+  .send-btn:hover{background:var(--accent2);}
+  .send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .log-panel{padding:8px;}
+  .log-entry{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(26,58,92,0.3);font-size:12px;}
+  .lt{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0;}
+  .lm{color:var(--text2);line-height:1.4;}
+  .lm.ok{color:var(--green);}.lm.w{color:var(--gold);}.lm.er{color:var(--red);}
+  .pine-panel{padding:8px;}
+  .pine-item{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.2s;}
+  .pine-item:hover{border-color:var(--silver);}
+  .pine-name{font-size:12px;font-weight:600;color:var(--silver2);margin-bottom:2px;}
+  .pine-desc{font-size:11px;color:var(--text3);}
+  .divider{height:1px;background:var(--border);margin:4px 0;}
+  .typing{display:flex;gap:4px;padding:4px 0;}
+  .typing span{width:5px;height:5px;background:var(--accent2);border-radius:50%;animation:typ 1.2s infinite;}
+  .typing span:nth-child(2){animation-delay:0.2s;}
+  .typing span:nth-child(3){animation-delay:0.4s;}
+  @keyframes typ{0%,100%{opacity:0.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+</style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="color:#79c0ff">🏛️ 統帥指揮中心 (官方 SDK 突破版)</h2>
-        <input type="password" id="key" placeholder="貼上新 Key (AIza...w8PE)">
-        <button onclick="connect()">⚡ 官方路徑點火</button>
-        <div id="log">>> 等待統帥授權...</div>
+<div class="layout">
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 20 20" fill="none">
+        <polygon points="10,2 18,7 18,13 10,18 2,13 2,7" stroke="#c9a84c" stroke-width="1" fill="none"/>
+        <polygon points="10,5 15,8 15,12 10,15 5,12 5,8" stroke="#c9a84c" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
+        <circle cx="10" cy="10" r="2" fill="#c9a84c"/>
+      </svg>
     </div>
-
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
-
-        window.connect = async function() {
-            const key = document.getElementById('key').value.trim();
-            const logBox = document.getElementById('log');
-            const log = (m, c) => logBox.innerHTML += `<div style="color:${c}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
-
-            if(!key) return alert("請輸入 Key");
-            
-            logBox.innerHTML = ""; // 清空舊日誌
-            log("📡 啟動 Google 官方 SDK 通訊模組...", "#79c0ff");
-
-            try {
-                // 使用官方 SDK 建立連線
-                const genAI = new GoogleGenerativeAI(key);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                
-                log("🧠 正在與 Gemini 1.5 Flash 進行神經元握手...", "#79c0ff");
-                
-                // 執行真正的生成測試
-                const result = await model.generateContent("ping");
-                const response = await result.response;
-                const text = response.text();
-                
-                if(text) {
-                    log("🟢 【連線成功】大腦已就緒！系統進入 100% 運作狀態。", "#39ff14");
-                    log(`AI 回應: ${text}`, "#39ff14");
-                }
-            } catch (err) {
-                log(`🔴 突破失敗: ${err.message}`, "#ff7b72");
-                log("💡 偵錯筆記：如果錯誤是 'API key not valid'，請確認是否貼錯舊 Key。", "#8b949e");
-            }
-        }
-    </script>
+    <div class="logo-text">
+      <h1>TRADE EMPIRE CORE</h1>
+      <p>COMMAND CENTER v2.0 // 指揮中心</p>
+    </div>
+  </div>
+  <div class="header-status">
+    <span class="ds-badge">DeepSeek AI</span>
+    <div class="status-pill">
+      <div class="dot" id="cdot"></div>
+      <span id="ctxt">待連線</span>
+    </div>
+    <div class="clock" id="clk">--:--:--</div>
+  </div>
+</header>
+<div class="main">
+  <div class="sidebar-left">
+    <div class="sec-hdr">// 代理人部隊</div>
+    <div class="agent-list">
+      <div class="agent-card ga active" onclick="selAgent(this,'黃金白銀分析師','GOLD')">
+        <div class="ag-name">黃金白銀分析師</div>
+        <div class="ag-role">XAU/XAG 技術分析 · 市場情報</div>
+        <div class="ag-status"><div class="dot on"></div>待命中</div>
+      </div>
+      <div class="agent-card" onclick="selAgent(this,'Pine Script 工程師','PINE')">
+        <div class="ag-name">Pine Script 工程師</div>
+        <div class="ag-role">TradingView 腳本開發 · 優化</div>
+        <div class="ag-status"><div class="dot on"></div>待命中</div>
+      </div>
+      <div class="agent-card" onclick="selAgent(this,'地緣政治情報官','GEO')">
+        <div class="ag-name">地緣政治情報官</div>
+        <div class="ag-role">國際形勢 · 石油 · 美元指數</div>
+        <div class="ag-status"><div class="dot on"></div>待命中</div>
+      </div>
+      <div class="agent-card" onclick="selAgent(this,'智囊團總覽','BRAIN')">
+        <div class="ag-name">智囊團總覽</div>
+        <div class="ag-role">綜合分析 · 多角度判斷</div>
+        <div class="ag-status"><div class="dot on"></div>待命中</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr">// 市場概覽</div>
+    <div class="market-panel">
+      <div class="mkt-row"><span class="mkt-sym">XAU/USD</span><span class="mkt-price" id="gp">---</span><span class="mkt-chg up" id="gc">--</span></div>
+      <div class="mkt-row"><span class="mkt-sym">XAG/USD</span><span class="mkt-price" id="sp">---</span><span class="mkt-chg up" id="sc">--</span></div>
+      <div class="mkt-row"><span class="mkt-sym">DXY</span><span class="mkt-price" id="dp">---</span><span class="mkt-chg dn" id="dc">--</span></div>
+      <div class="mkt-row"><span class="mkt-sym">WTI</span><span class="mkt-price" id="wp">---</span><span class="mkt-chg up" id="wc">--</span></div>
+    </div>
+  </div>
+  <div class="main-center">
+    <div class="center-top">
+      <div class="cmd-title">// 快速指令</div>
+      <div class="quick-actions">
+        <button class="qa g" onclick="qcmd('分析今日黃金走勢與關鍵支撐阻力位')">黃金分析</button>
+        <button class="qa g" onclick="qcmd('白銀市場今日技術面分析')">白銀分析</button>
+        <button class="qa" onclick="qcmd('幫我優化這段 Pine Script 指標')">優化腳本</button>
+        <button class="qa" onclick="qcmd('分析當前地緣政治對貴金屬的影響')">地緣情報</button>
+        <button class="qa" onclick="qcmd('美元指數與通膨對黃金的影響分析')">美元通膨</button>
+        <button class="qa" onclick="qcmd('幫我寫一個 Pine Script v5 波浪指標')">寫新腳本</button>
+      </div>
+    </div>
+    <div class="chat-area" id="chat">
+      <div class="msg">
+        <div class="avatar">SYS</div>
+        <div>
+          <div class="ag-tag">// 系統初始化</div>
+          <div class="bubble">
+            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心。<br><br>
+            AI 大腦：<strong style="color:var(--accent2)">DeepSeek Chat</strong><br><br>
+            請輸入 DeepSeek API Key 並點擊連線。<br>
+            <span style="color:var(--text3);font-size:12px">免費申請 → platform.deepseek.com</span>
+          </div>
+          <div class="msg-time" id="it"></div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="api-row">
+        <span class="api-lbl">DEEPSEEK KEY</span>
+        <input type="password" class="api-inp" id="akey" placeholder="sk-...">
+        <button class="conn-btn" onclick="connect()">⚡ 連線</button>
+      </div>
+      <div class="chat-row">
+        <textarea class="chat-inp" id="cinp" placeholder="輸入指令或問題，Enter 發送..." onkeydown="hkey(event)"></textarea>
+        <button class="send-btn" id="sbtn" onclick="send()" disabled>發送</button>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-right">
+    <div class="sec-hdr">// 任務日誌</div>
+    <div class="log-panel" id="log">
+      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成</span></div>
+      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">等待 DeepSeek 連線...</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr">// Pine Script 工具庫</div>
+    <div class="pine-panel">
+      <div class="pine-item" onclick="qcmd('幫我寫一個黃金專用 EMA 交叉策略 Pine Script v5')">
+        <div class="pine-name">EMA 交叉策略</div><div class="pine-desc">均線交叉買賣信號</div>
+      </div>
+      <div class="pine-item" onclick="qcmd('幫我寫一個波浪理論輔助指標 Pine Script v5')">
+        <div class="pine-name">波浪理論標示</div><div class="pine-desc">自動標示高低點</div>
+      </div>
+      <div class="pine-item" onclick="qcmd('幫我寫黃金支撐阻力自動標示 Pine Script v5')">
+        <div class="pine-name">支撐阻力標示</div><div class="pine-desc">動態支撐阻力位</div>
+      </div>
+      <div class="pine-item" onclick="qcmd('幫我寫 RSI 加 MACD 共振預警 Pine Script v5')">
+        <div class="pine-name">RSI + MACD 組合</div><div class="pine-desc">雙指標共振預警</div>
+      </div>
+      <div class="pine-item" onclick="qcmd('幫我寫台指期日內短線預警 Pine Script v5')">
+        <div class="pine-name">台指期日內預警</div><div class="pine-desc">台指期短線信號</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+const PROMPTS={
+  GOLD:`你是專業黃金白銀市場分析師，專精 XAU/USD 和 XAG/USD 技術分析。提供K線形態、支撐阻力、趨勢判斷、RSI/MACD解讀。回覆繁體中文，標示關鍵價位。`,
+  PINE:`你是 TradingView Pine Script v5 專家。撰寫指標、優化腳本、解釋邏輯。代碼附繁體中文註解。`,
+  GEO:`你是地緣政治與國際金融情報分析官。分析戰爭、石油、美元、央行政策對貴金屬的影響。回覆繁體中文。`,
+  BRAIN:`你是多位專家組成的智囊團，從技術面、基本面、地緣政治面多角度綜合分析。回覆繁體中文。`
+};
+let key='',agentName='黃金白銀分析師',agentId='GOLD',connected=false,hist=[];
+window.selAgent=function(el,name,id){
+  document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');agentName=name;agentId=id;hist=[];log('已切換：'+name,'w');
+};
+window.connect=async function(){
+  key=document.getElementById('akey').value.trim();
+  if(!key){alert('請輸入 DeepSeek API Key');return;}
+  log('正在連線...','');
+  try{
+    const r=await ds('你好，請用一句話確認連線成功並說明你的角色。');
+    connected=true;
+    document.getElementById('cdot').className='dot on';
+    document.getElementById('ctxt').textContent='已連線';
+    document.getElementById('sbtn').disabled=false;
+    log('連線成功','ok');aiMsg(r);
+  }catch(e){
+    document.getElementById('cdot').className='dot off';
+    document.getElementById('ctxt').textContent='連線失敗';
+    log('失敗：'+e.message,'er');
+    sysMsg('連線失敗：'+e.message);
+  }
+};
+async function ds(msg){
+  const msgs=[{role:'system',content:PROMPTS[agentId]},...hist,{role:'user',content:msg}];
+  const res=await fetch('https://api.deepseek.com/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body:JSON.stringify({model:'deepseek-chat',messages:msgs,max_tokens:2000,temperature:0.7})
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
+  const d=await res.json();
+  const reply=d.choices[0].message.content;
+  hist.push({role:'user',content:msg},{role:'assistant',content:reply});
+  if(hist.length>20)hist=hist.slice(-20);
+  return reply;
+}
+window.qcmd=function(cmd){
+  if(!connected){alert('請先連線');return;}
+  document.getElementById('cinp').value=cmd;send();
+};
+window.send=async function(){
+  const el=document.getElementById('cinp');
+  const msg=el.value.trim();
+  if(!msg||!connected)return;
+  el.value='';document.getElementById('sbtn').disabled=true;
+  userMsg(msg);log('派發：'+msg.substring(0,20)+'...','');
+  const tid=typing();
+  try{
+    const r=await ds(msg);rmTyping(tid);aiMsg(r);log('完成','ok');
+  }catch(e){rmTyping(tid);aiMsg('錯誤：'+e.message);log('失敗','er');}
+  document.getElementById('sbtn').disabled=false;
+};
+window.hkey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+function userMsg(t){app(`<div class="msg u"><div class="avatar">統帥</div><div><div class="bubble">${esc(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
+function aiMsg(t){app(`<div class="msg"><div class="avatar">DS</div><div><div class="ag-tag">// ${agentName}</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
+function sysMsg(t){app(`<div class="msg"><div class="avatar">SYS</div><div><div class="ag-tag">// 系統</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
+function typing(){const id='tp'+Date.now();app(`<div class="msg" id="${id}"><div class="avatar">DS</div><div><div class="ag-tag">// ${agentName} 思考中</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div></div>`);return id;}
+function rmTyping(id){const e=document.getElementById(id);if(e)e.remove();}
+function app(html){const c=document.getElementById('chat');c.insertAdjacentHTML('beforeend',html);c.scrollTop=c.scrollHeight;}
+function log(txt,type){const p=document.getElementById('log');const d=document.createElement('div');d.className='log-entry';d.innerHTML=`<span class="lt">${now()}</span><span class="lm ${type}">${esc(txt)}</span>`;p.appendChild(d);p.scrollTop=p.scrollHeight;}
+function fmt(t){return esc(t).replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold2)">$1</strong>').replace(/`([^`]+)`/g,'<code style="font-family:monospace;color:var(--silver2);background:var(--bg3);padding:1px 5px">$1</code>').replace(/\n/g,'<br>');}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function now(){return new Date().toLocaleTimeString('zh-TW',{hour12:false});}
+setInterval(()=>{document.getElementById('clk').textContent=now();},1000);
+document.getElementById('clk').textContent=now();
+document.getElementById('it').textContent=now();
+document.getElementById('lt1').textContent=now();
+document.getElementById('lt2').textContent=now();
+function mkt(){
+  document.getElementById('gp').textContent=(3320+(Math.random()-.5)*4).toFixed(2);
+  document.getElementById('sp').textContent=(33.2+(Math.random()-.5)*0.2).toFixed(3);
+  document.getElementById('dp').textContent=(99.8+(Math.random()-.5)*0.3).toFixed(2);
+  document.getElementById('wp').textContent=(58.4+(Math.random()-.5)*0.5).toFixed(2);
+  document.getElementById('gc').textContent='+0.82%';
+  document.getElementById('sc').textContent='+1.24%';
+  document.getElementById('dc').textContent='-0.31%';
+  document.getElementById('wc').textContent='+0.47%';
+}
+mkt();setInterval(mkt,8000);
+</script>
 </body>
 </html>
