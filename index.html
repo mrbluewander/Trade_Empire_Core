@@ -121,7 +121,7 @@
     </div>
     <div class="logo-text">
       <h1>TRADE EMPIRE CORE</h1>
-      <p>COMMAND CENTER v2.1 // 指揮中心</p>
+      <p>COMMAND CENTER v2.2 // 指揮中心</p>
     </div>
   </div>
   <div class="header-status">
@@ -184,8 +184,8 @@
         <div>
           <div class="ag-tag">// 系統初始化</div>
           <div class="bubble">
-            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心 v2.1<br><br>
-            請選擇 AI 大腦，輸入對應的 API Key，點擊連線。<br><br>
+            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心 v2.2<br><br>
+            已修復 Gemini 連線錯誤。請輸入 API Key 並點擊連線。<br><br>
             <span style="color:#4285f4">● Gemini</span> 免費申請：aistudio.google.com<br>
             <span style="color:var(--accent2)">● DeepSeek</span> 免費申請：platform.deepseek.com
           </div>
@@ -213,8 +213,8 @@
   <div class="sidebar-right">
     <div class="sec-hdr">// 任務日誌</div>
     <div class="log-panel" id="log">
-      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成 v2.1</span></div>
-      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">請選擇 AI 並連線...</span></div>
+      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成 v2.2</span></div>
+      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">修正模型節點為 gemini-1.5-flash-latest</span></div>
     </div>
     <div class="divider"></div>
     <div class="sec-hdr">// Pine Script 工具庫</div>
@@ -248,6 +248,7 @@ const PROMPTS={
 };
 let key='',aiMode='gemini',agentName='黃金白銀分析師',agentId='GOLD';
 let connected=false,hist=[],geminiChat=null,geminiModel=null;
+
 window.switchAI=function(mode){
   aiMode=mode;connected=false;hist=[];geminiChat=null;
   document.getElementById('cdot').className='dot';
@@ -267,11 +268,13 @@ window.switchAI=function(mode){
   }
   log('切換至 '+mode.toUpperCase(),'w');
 };
+
 window.selAgent=function(el,name,id){
   document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');agentName=name;agentId=id;hist=[];geminiChat=null;
   log('已切換：'+name,'w');
 };
+
 window.connect=async function(){
   key=document.getElementById('akey').value.trim();
   if(!key){alert('請輸入 API Key');return;}
@@ -280,7 +283,11 @@ window.connect=async function(){
     let reply='';
     if(aiMode==='gemini'){
       const genAI=new GoogleGenerativeAI(key);
-      geminiModel=genAI.getGenerativeModel({model:'gemini-1.5-flash',systemInstruction:PROMPTS[agentId]});
+      // 修正：使用 gemini-1.5-flash-latest 確保連線路徑正確
+      geminiModel=genAI.getGenerativeModel({
+        model:'gemini-1.5-flash-latest',
+        systemInstruction:PROMPTS[agentId]
+      });
       geminiChat=geminiModel.startChat({history:[]});
       const result=await geminiChat.sendMessage('你好，請用一句話確認連線成功並說明你的角色。');
       reply=result.response.text();
@@ -296,9 +303,10 @@ window.connect=async function(){
     document.getElementById('cdot').className='dot off';
     document.getElementById('ctxt').textContent='連線失敗';
     log('失敗：'+e.message,'er');
-    sysMsg('連線失敗：'+e.message+'\n請確認 API Key 正確。');
+    sysMsg('連線失敗：'+e.message+'\n請確認您的 API Key 是否正確且具備 gemini-1.5-flash 訪問權限。');
   }
 };
+
 async function callDS(msg){
   const msgs=[{role:'system',content:PROMPTS[agentId]},...hist,{role:'user',content:msg}];
   const res=await fetch('https://api.deepseek.com/chat/completions',{
@@ -310,7 +318,9 @@ async function callDS(msg){
   hist.push({role:'user',content:msg},{role:'assistant',content:reply});
   if(hist.length>20)hist=hist.slice(-20);return reply;
 }
+
 window.qcmd=function(cmd){if(!connected){alert('請先連線');return;}document.getElementById('cinp').value=cmd;send();};
+
 window.send=async function(){
   const el=document.getElementById('cinp');const msg=el.value.trim();
   if(!msg||!connected)return;
@@ -325,6 +335,7 @@ window.send=async function(){
   }catch(e){rmTyping(tid);aiMsg('錯誤：'+e.message);log('失敗','er');}
   document.getElementById('sbtn').disabled=false;
 };
+
 window.hkey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
 function userMsg(t){app(`<div class="msg u"><div class="avatar">統帥</div><div><div class="bubble">${esc(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
 function aiMsg(t){app(`<div class="msg"><div class="avatar">${aiMode==='gemini'?'GM':'DS'}</div><div><div class="ag-tag">// ${agentName}</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
@@ -341,6 +352,8 @@ document.getElementById('clk').textContent=now();
 document.getElementById('it').textContent=now();
 document.getElementById('lt1').textContent=now();
 document.getElementById('lt2').textContent=now();
+
+// 市場模擬數據更新
 function mkt(){
   document.getElementById('gp').textContent=(3320+(Math.random()-.5)*4).toFixed(2);
   document.getElementById('sp').textContent=(33.2+(Math.random()-.5)*0.2).toFixed(3);
