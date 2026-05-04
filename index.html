@@ -1,133 +1,58 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trade Empire Core — 指揮中心</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root { --bg:#080c10; --gold:#c9a84c; --gold2:#e8c97a; --border:#1a3a5c; --text:#d4e8f0; }
-  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; margin:0; height:100vh; overflow:hidden; }
-  .layout{ display:grid; grid-template-rows: auto 1fr; height:100vh; }
-  header{ padding:15px 25px; border-bottom:1px solid var(--border); background:#0d1520; display:flex; justify-content:space-between; }
-  .main{ display:grid; grid-template-columns: 1fr 300px; height:100%; overflow:hidden; }
-  .chat-area{ flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; }
-  .bubble{ padding:12px; border:1px solid var(--border); background:#0d1520; border-radius:4px; max-width:90%; }
-  .input-area{ padding:15px; background:#0d1520; border-top:1px solid var(--border); }
-  .api-row{ display:flex; gap:10px; margin-bottom:10px; }
-  .api-inp{ flex:1; padding:10px; background:#000; border:1px solid var(--border); color:var(--gold); }
-  .chat-inp{ flex:1; padding:10px; background:#000; border:1px solid var(--border); color:#fff; width:100%; box-sizing:border-box; }
-  .btn{ padding:10px 20px; cursor:pointer; border:1px solid var(--gold); background:transparent; color:var(--gold); font-weight:700; }
-  .btn:hover{ background:var(--gold); color:#000; }
-  #log{ font-family:monospace; font-size:11px; padding:10px; color:#4a6a80; overflow-y:auto; }
-</style>
-</head>
-<body>
-<div class="layout">
-  <header>
-    <div style="color:var(--gold2); font-weight:700;">TRADE EMPIRE CORE v2.6 // 直連修復版</div>
-    <div id="status" style="font-family:monospace; font-size:12px; color:#555;">● STANDBY</div>
-  </header>
-  <div class="main">
-    <div style="display:flex; flex-direction:column; overflow:hidden;">
-      <div id="chat" class="chat-area">
-        <div class="bubble">統帥，我們改用「直連協定」。請貼上 Key 並點擊連線。<br>如果成功，我會立刻回報。</div>
-      </div>
-      <div class="input-area">
-        <div class="api-row">
-          <input type="password" id="akey" class="api-inp" placeholder="在此輸入 API Key (AIza...)">
-          <button class="btn" onclick="testConn()">⚡ 連線測試</button>
-        </div>
-        <div style="display:flex; gap:10px;">
-          <input type="text" id="cinp" class="chat-inp" placeholder="等待連線..." onkeydown="if(event.key==='Enter')send()" disabled>
-          <button class="btn" id="sbtn" onclick="send()" disabled>發送</button>
-        </div>
-      </div>
-    </div>
-    <div id="log" style="border-left:1px solid var(--border);"></div>
-  </div>
-</div>
+/**
+ * LOBSTER COMMAND - 多語系執行驅動 (v7.5)
+ * 目標：徹底終結 GitHub 空殼，實現全語法自動化補完
+ */
 
-<script>
-let API_KEY = '';
-let connected = false;
+const AgentCore = {
+    // 效率優先：根據任務自動匹配最佳語言
+    languageSelector: function(taskType) {
+        const matrix = {
+            "FILE_OPS": "Shell/Bash",      // 處理系統層級與檔案搬運，最快
+            "NETWORK_IO": "Node.js",       // 處理 API 高併發與代理人對接
+            "LOGIC_CALC": "Rust/C++",      // 處理重度運算與解密
+            "SCRIPTS": "Python/Ruby"       // 僅用於快速數據處理
+        };
+        return matrix[taskType] || "Node.js";
+    },
 
-async function testConn() {
-  API_KEY = document.getElementById('akey').value.trim();
-  if(!API_KEY) return alert("請輸入 Key");
-  
-  log("啟動 HTTP 直連協定...");
-  
-  // 嘗試直接發送 HTTP POST 請求，完全繞過 SDK
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: "你好，請說：連線成功。" }] }]
-      })
-    });
+    // 實體執行：自動生成並「簽署」代碼塊
+    async fleshOutSkeleton(fileName, taskContext, apiKey) {
+        console.log(`[系統統籌] 檢測到空殼檔案: ${fileName}`);
+        const lang = this.languageSelector(taskContext.type);
+        
+        console.log(`[小龍蝦匹配] 決定採用 ${lang} 進行血肉填充，效率最優化...`);
 
-    const data = await response.json();
+        // 這裡直接調用 Gemini 大腦，產出不帶廢話的純代碼「肉體」
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: `你現在是萬象代理人。任務：填補 GitHub 檔案 ${fileName} 的內容。
+                           語言要求：${lang}。
+                           背景：${taskContext.desc}。
+                           要求：代碼必須高效、具備錯誤自癒能力，直接輸出代碼，禁止任何解釋。`
+                }]
+            }]
+        };
 
-    if (data.candidates && data.candidates[0].content.parts[0].text) {
-      connected = true;
-      document.getElementById('status').style.color = '#39e07a';
-      document.getElementById('status').innerText = '● ONLINE';
-      document.getElementById('cinp').disabled = false;
-      document.getElementById('sbtn').disabled = false;
-      document.getElementById('cinp').placeholder = "請輸入指令...";
-      addMsg("AI", data.candidates[0].content.parts[0].text);
-      log("直連成功！");
-    } else {
-      throw new Error(JSON.stringify(data.error || "未知錯誤"));
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            const rawCode = data.candidates[0].content.parts[0].text;
+
+            // 這裡模擬 Open Claw 的手腳：準備自動提交至 GitHub
+            return {
+                fileName: fileName,
+                language: lang,
+                code: rawCode,
+                status: "READY_FOR_COMMIT"
+            };
+        } catch (e) {
+            return { status: "ERROR", msg: "大腦連線中斷" };
+        }
     }
-  } catch (err) {
-    log("直連失敗: " + err.message);
-    alert("連線失敗！請確認 API Key 是否正確。\n\n詳細錯誤：" + err.message);
-  }
-}
+};
 
-async function send() {
-  const inp = document.getElementById('cinp');
-  const msg = inp.value.trim();
-  if(!msg || !connected) return;
-  
-  addMsg("USER", msg);
-  inp.value = "";
-  log("處理指令中...");
-
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: msg }] }]
-      })
-    });
-    const data = await response.json();
-    const reply = data.candidates[0].content.parts[0].text;
-    addMsg("AI", reply);
-    log("回傳成功");
-  } catch (err) {
-    addMsg("SYS", "發送失敗: " + err.message);
-  }
-}
-
-function addMsg(role, txt) {
-  const c = document.getElementById('chat');
-  c.innerHTML += `<div style="margin-bottom:10px;">
-    <div style="font-size:10px; color:#4a6a80; margin-bottom:2px;">// ${role}</div>
-    <div class="bubble">${txt}</div>
-  </div>`;
-  c.scrollTop = c.scrollHeight;
-}
-
-function log(t) {
-  const l = document.getElementById('log');
-  l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${t}</div>`;
-  l.scrollTop = l.scrollHeight;
-}
-</script>
-</body>
-</html>
+// 統帥，這就是您的「手腳」。
