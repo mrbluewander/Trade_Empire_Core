@@ -27,7 +27,6 @@
   .logo-text h1{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold2);line-height:1;}
   .logo-text p{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
   .header-status{display:flex;align-items:center;gap:16px;}
-  .ds-badge{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;padding:3px 8px;border:1px solid var(--accent);background:rgba(26,106,170,0.1);}
   .status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);background:var(--bg2);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;}
   .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse 2s infinite;}
   .dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
@@ -73,9 +72,14 @@
   .msg-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-top:5px;}
   .msg.u .msg-time{text-align:right;}
   .ag-tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;margin-bottom:5px;}
-  .input-area{padding:16px 20px;border-top:1px solid var(--border);background:rgba(13,21,32,0.95);}
-  .api-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
-  .api-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;white-space:nowrap;}
+  .input-area{padding:12px 20px;border-top:1px solid var(--border);background:rgba(13,21,32,0.95);}
+  .ai-selector{display:flex;gap:6px;margin-bottom:10px;align-items:center;}
+  .ai-btn{padding:5px 14px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+  .ai-btn.active-gemini{border-color:#4285f4;color:#4285f4;background:rgba(66,133,244,0.1);}
+  .ai-btn.active-deepseek{border-color:var(--accent2);color:var(--accent2);background:rgba(34,136,221,0.1);}
+  .ai-btn:hover{border-color:var(--text2);}
+  .api-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .api-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;white-space:nowrap;min-width:90px;}
   .api-inp{flex:1;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;}
   .api-inp::placeholder{color:var(--text3);}
   .conn-btn{padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;}
@@ -117,11 +121,10 @@
     </div>
     <div class="logo-text">
       <h1>TRADE EMPIRE CORE</h1>
-      <p>COMMAND CENTER v2.0 // 指揮中心</p>
+      <p>COMMAND CENTER v2.1 // 指揮中心</p>
     </div>
   </div>
   <div class="header-status">
-    <span class="ds-badge">DeepSeek AI</span>
     <div class="status-pill">
       <div class="dot" id="cdot"></div>
       <span id="ctxt">待連線</span>
@@ -181,19 +184,24 @@
         <div>
           <div class="ag-tag">// 系統初始化</div>
           <div class="bubble">
-            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心。<br><br>
-            AI 大腦：<strong style="color:var(--accent2)">DeepSeek Chat</strong><br><br>
-            請輸入 DeepSeek API Key 並點擊連線。<br>
-            <span style="color:var(--text3);font-size:12px">免費申請 → platform.deepseek.com</span>
+            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心 v2.1<br><br>
+            請選擇 AI 大腦，輸入對應的 API Key，點擊連線。<br><br>
+            <span style="color:#4285f4">● Gemini</span> 免費申請：aistudio.google.com<br>
+            <span style="color:var(--accent2)">● DeepSeek</span> 免費申請：platform.deepseek.com
           </div>
           <div class="msg-time" id="it"></div>
         </div>
       </div>
     </div>
     <div class="input-area">
+      <div class="ai-selector">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);padding:5px 0;letter-spacing:1px;">AI 大腦：</span>
+        <button class="ai-btn active-gemini" id="btn-gemini" onclick="switchAI('gemini')">● GEMINI</button>
+        <button class="ai-btn" id="btn-deepseek" onclick="switchAI('deepseek')">● DEEPSEEK</button>
+      </div>
       <div class="api-row">
-        <span class="api-lbl">DEEPSEEK KEY</span>
-        <input type="password" class="api-inp" id="akey" placeholder="sk-...">
+        <span class="api-lbl" id="key-lbl">GEMINI KEY</span>
+        <input type="password" class="api-inp" id="akey" placeholder="AIza...">
         <button class="conn-btn" onclick="connect()">⚡ 連線</button>
       </div>
       <div class="chat-row">
@@ -205,8 +213,8 @@
   <div class="sidebar-right">
     <div class="sec-hdr">// 任務日誌</div>
     <div class="log-panel" id="log">
-      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成</span></div>
-      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">等待 DeepSeek 連線...</span></div>
+      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成 v2.1</span></div>
+      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">請選擇 AI 並連線...</span></div>
     </div>
     <div class="divider"></div>
     <div class="sec-hdr">// Pine Script 工具庫</div>
@@ -230,71 +238,98 @@
   </div>
 </div>
 </div>
-<script>
+<script type="module">
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
 const PROMPTS={
   GOLD:`你是專業黃金白銀市場分析師，專精 XAU/USD 和 XAG/USD 技術分析。提供K線形態、支撐阻力、趨勢判斷、RSI/MACD解讀。回覆繁體中文，標示關鍵價位。`,
   PINE:`你是 TradingView Pine Script v5 專家。撰寫指標、優化腳本、解釋邏輯。代碼附繁體中文註解。`,
   GEO:`你是地緣政治與國際金融情報分析官。分析戰爭、石油、美元、央行政策對貴金屬的影響。回覆繁體中文。`,
   BRAIN:`你是多位專家組成的智囊團，從技術面、基本面、地緣政治面多角度綜合分析。回覆繁體中文。`
 };
-let key='',agentName='黃金白銀分析師',agentId='GOLD',connected=false,hist=[];
+let key='',aiMode='gemini',agentName='黃金白銀分析師',agentId='GOLD';
+let connected=false,hist=[],geminiChat=null,geminiModel=null;
+window.switchAI=function(mode){
+  aiMode=mode;connected=false;hist=[];geminiChat=null;
+  document.getElementById('cdot').className='dot';
+  document.getElementById('ctxt').textContent='待連線';
+  document.getElementById('sbtn').disabled=true;
+  document.getElementById('akey').value='';
+  if(mode==='gemini'){
+    document.getElementById('btn-gemini').className='ai-btn active-gemini';
+    document.getElementById('btn-deepseek').className='ai-btn';
+    document.getElementById('key-lbl').textContent='GEMINI KEY';
+    document.getElementById('akey').placeholder='AIza...';
+  }else{
+    document.getElementById('btn-deepseek').className='ai-btn active-deepseek';
+    document.getElementById('btn-gemini').className='ai-btn';
+    document.getElementById('key-lbl').textContent='DEEPSEEK KEY';
+    document.getElementById('akey').placeholder='sk-...';
+  }
+  log('切換至 '+mode.toUpperCase(),'w');
+};
 window.selAgent=function(el,name,id){
   document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');agentName=name;agentId=id;hist=[];log('已切換：'+name,'w');
+  el.classList.add('active');agentName=name;agentId=id;hist=[];geminiChat=null;
+  log('已切換：'+name,'w');
 };
 window.connect=async function(){
   key=document.getElementById('akey').value.trim();
-  if(!key){alert('請輸入 DeepSeek API Key');return;}
-  log('正在連線...','');
+  if(!key){alert('請輸入 API Key');return;}
+  log('正在連線 '+aiMode.toUpperCase()+'...','');
   try{
-    const r=await ds('你好，請用一句話確認連線成功並說明你的角色。');
+    let reply='';
+    if(aiMode==='gemini'){
+      const genAI=new GoogleGenerativeAI(key);
+      geminiModel=genAI.getGenerativeModel({model:'gemini-1.5-flash',systemInstruction:PROMPTS[agentId]});
+      geminiChat=geminiModel.startChat({history:[]});
+      const result=await geminiChat.sendMessage('你好，請用一句話確認連線成功並說明你的角色。');
+      reply=result.response.text();
+    }else{
+      reply=await callDS('你好，請用一句話確認連線成功並說明你的角色。');
+    }
     connected=true;
     document.getElementById('cdot').className='dot on';
-    document.getElementById('ctxt').textContent='已連線';
+    document.getElementById('ctxt').textContent=aiMode.toUpperCase()+' 已連線';
     document.getElementById('sbtn').disabled=false;
-    log('連線成功','ok');aiMsg(r);
+    log('連線成功','ok');aiMsg(reply);
   }catch(e){
     document.getElementById('cdot').className='dot off';
     document.getElementById('ctxt').textContent='連線失敗';
     log('失敗：'+e.message,'er');
-    sysMsg('連線失敗：'+e.message);
+    sysMsg('連線失敗：'+e.message+'\n請確認 API Key 正確。');
   }
 };
-async function ds(msg){
+async function callDS(msg){
   const msgs=[{role:'system',content:PROMPTS[agentId]},...hist,{role:'user',content:msg}];
   const res=await fetch('https://api.deepseek.com/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
     body:JSON.stringify({model:'deepseek-chat',messages:msgs,max_tokens:2000,temperature:0.7})
   });
   if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
-  const d=await res.json();
-  const reply=d.choices[0].message.content;
+  const d=await res.json();const reply=d.choices[0].message.content;
   hist.push({role:'user',content:msg},{role:'assistant',content:reply});
-  if(hist.length>20)hist=hist.slice(-20);
-  return reply;
+  if(hist.length>20)hist=hist.slice(-20);return reply;
 }
-window.qcmd=function(cmd){
-  if(!connected){alert('請先連線');return;}
-  document.getElementById('cinp').value=cmd;send();
-};
+window.qcmd=function(cmd){if(!connected){alert('請先連線');return;}document.getElementById('cinp').value=cmd;send();};
 window.send=async function(){
-  const el=document.getElementById('cinp');
-  const msg=el.value.trim();
+  const el=document.getElementById('cinp');const msg=el.value.trim();
   if(!msg||!connected)return;
   el.value='';document.getElementById('sbtn').disabled=true;
   userMsg(msg);log('派發：'+msg.substring(0,20)+'...','');
   const tid=typing();
   try{
-    const r=await ds(msg);rmTyping(tid);aiMsg(r);log('完成','ok');
+    let reply='';
+    if(aiMode==='gemini'){const r=await geminiChat.sendMessage(msg);reply=r.response.text();}
+    else{reply=await callDS(msg);}
+    rmTyping(tid);aiMsg(reply);log('完成','ok');
   }catch(e){rmTyping(tid);aiMsg('錯誤：'+e.message);log('失敗','er');}
   document.getElementById('sbtn').disabled=false;
 };
 window.hkey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
 function userMsg(t){app(`<div class="msg u"><div class="avatar">統帥</div><div><div class="bubble">${esc(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
-function aiMsg(t){app(`<div class="msg"><div class="avatar">DS</div><div><div class="ag-tag">// ${agentName}</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
+function aiMsg(t){app(`<div class="msg"><div class="avatar">${aiMode==='gemini'?'GM':'DS'}</div><div><div class="ag-tag">// ${agentName}</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
 function sysMsg(t){app(`<div class="msg"><div class="avatar">SYS</div><div><div class="ag-tag">// 系統</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
-function typing(){const id='tp'+Date.now();app(`<div class="msg" id="${id}"><div class="avatar">DS</div><div><div class="ag-tag">// ${agentName} 思考中</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div></div>`);return id;}
+function typing(){const id='tp'+Date.now();app(`<div class="msg" id="${id}"><div class="avatar">${aiMode==='gemini'?'GM':'DS'}</div><div><div class="ag-tag">// ${agentName} 思考中</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div></div>`);return id;}
 function rmTyping(id){const e=document.getElementById(id);if(e)e.remove();}
 function app(html){const c=document.getElementById('chat');c.insertAdjacentHTML('beforeend',html);c.scrollTop=c.scrollHeight;}
 function log(txt,type){const p=document.getElementById('log');const d=document.createElement('div');d.className='log-entry';d.innerHTML=`<span class="lt">${now()}</span><span class="lm ${type}">${esc(txt)}</span>`;p.appendChild(d);p.scrollTop=p.scrollHeight;}
