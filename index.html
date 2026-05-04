@@ -10,121 +10,118 @@
     --bg:#080c10;--bg2:#0d1520;--bg3:#111d2e;
     --border:#1a3a5c;--border2:#1e4976;
     --gold:#c9a84c;--gold2:#e8c97a;
-    --silver:#8ab4cc;--silver2:#b8d4e8;
-    --green:#39e07a;--red:#e05050;
     --text:#d4e8f0;--text2:#7a9bb5;--text3:#4a6a80;
-    --accent:#1a6aaa;--accent2:#2288dd;
+    --accent:#1a6aaa;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
-  .layout{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100vh;}
-  header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:rgba(13,21,32,0.95);position:sticky;top:0;z-index:100;}
-  .logo{display:flex;align-items:center;gap:14px;}
-  .logo-icon{width:38px;height:38px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;}
-  .logo-text h1{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold2);line-height:1;}
-  .logo-text p{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
-  .header-status{display:flex;align-items:center;gap:16px;}
-  .status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);background:var(--bg2);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);}
-  .dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
-  .dot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
-  .clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:1px;}
-  .main{display:grid;grid-template-columns:260px 1fr 280px;height:calc(100vh - 71px);}
-  .sidebar-left,.sidebar-right{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
-  .sidebar-right{border-right:none;border-left:1px solid var(--border);}
-  .sec-hdr{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);background:rgba(17,29,46,0.5);}
-  .agent-card{padding:12px 14px;border:1px solid var(--border);margin:8px;cursor:pointer;background:var(--bg2);}
-  .agent-card.active{border-color:var(--gold);background:var(--bg3);}
-  .main-center{display:flex;flex-direction:column;overflow:hidden;}
-  .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
-  .bubble{padding:12px 16px;border:1px solid var(--border);background:var(--bg2);line-height:1.6;font-size:14px;border-radius:4px;}
+  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow:hidden;}
+  .layout{display:grid;grid-template-rows:auto 1fr;height:100vh;}
+  header{padding:15px 25px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;}
+  .status-pill{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:#555;}
+  .dot.on{background:#39e07a;box-shadow:0 0 8px #39e07a;}
+  .main{display:grid;grid-template-columns:250px 1fr 250px;overflow:hidden;}
+  .sidebar{border-right:1px solid var(--border);padding:10px;background:rgba(0,0,0,0.2);}
+  .main-center{display:flex;flex-direction:column;background:var(--bg);}
+  .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:15px;}
+  .bubble{padding:12px;border:1px solid var(--border);background:var(--bg2);max-width:85%;border-radius:4px;word-break:break-all;}
+  .msg.u{align-self:flex-end;}
   .msg.u .bubble{border-color:var(--accent);background:rgba(26,106,170,0.1);}
-  .input-area{padding:12px 20px;border-top:1px solid var(--border);background:rgba(13,21,32,0.95);}
-  .api-row{display:flex;gap:8px;margin-bottom:8px;}
-  .api-inp{flex:1;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;}
-  .conn-btn{padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);cursor:pointer;font-weight:700;}
-  .chat-row{display:flex;gap:8px;}
-  .chat-inp{flex:1;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);height:48px;outline:none;}
-  .send-btn{padding:0 24px;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700;}
-  .log-entry{padding:4px 10px;font-size:11px;font-family:'Share Tech Mono',monospace;border-bottom:1px solid rgba(26,58,92,0.2);}
+  .input-area{padding:15px;border-top:1px solid var(--border);background:var(--bg2);}
+  .api-row{display:flex;gap:10px;margin-bottom:10px;}
+  .api-inp{flex:1;padding:8px;background:#000;border:1px solid var(--border);color:var(--gold);font-family:monospace;}
+  .chat-row{display:flex;gap:10px;}
+  .chat-inp{flex:1;padding:10px;background:#000;border:1px solid var(--border2);color:#fff;}
+  .btn{padding:8px 20px;cursor:pointer;font-weight:700;border:1px solid var(--gold);background:transparent;color:var(--gold);}
+  .btn:hover{background:var(--gold);color:#000;}
+  .btn:disabled{opacity:0.3;cursor:not-allowed;}
+  #log{font-family:'Share Tech Mono',monospace;font-size:10px;padding:10px;color:var(--text3);overflow-y:auto;height:100%;}
 </style>
 </head>
 <body>
 <div class="layout">
-<header>
-  <div class="logo">
-    <div class="logo-icon">👑</div>
-    <div class="logo-text">
-      <h1>TRADE EMPIRE CORE</h1>
-      <p>COMMAND CENTER v2.4 // 指揮中心</p>
+  <header>
+    <div><strong style="color:var(--gold2);letter-spacing:2px;">TRADE EMPIRE CORE v2.5</strong></div>
+    <div class="status-pill"><div class="dot" id="cdot"></div><span id="ctxt">OFFLINE</span></div>
+  </header>
+  <div class="main">
+    <div class="sidebar">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">// 系統狀態</div>
+      <div style="font-size:12px;color:var(--gold2);">核心連線測試中...</div>
     </div>
-  </div>
-  <div class="header-status">
-    <div class="status-pill"><div class="dot" id="cdot"></div><span id="ctxt">待連線</span></div>
-    <div class="clock" id="clk">--:--:--</div>
-  </div>
-</header>
-<div class="main">
-  <div class="sidebar-left">
-    <div class="sec-hdr">// 代理人</div>
-    <div class="agent-card active">
-      <div style="font-weight:700">智囊團總覽</div>
-      <div style="font-size:11px;color:var(--text2)">綜合市場分析</div>
-    </div>
-  </div>
-  <div class="main-center">
-    <div class="chat-area" id="chat">
-      <div class="bubble" style="color:var(--gold2)">
-        系統版本 v2.4 已備份完畢。<br>
-        請在下方輸入 API Key 後點擊「⚡ 連線」。
+    <div class="main-center">
+      <div class="chat-area" id="chat">
+        <div class="bubble">統帥，這是 <strong>v2.5 終極穩定版</strong>。我已經改進了連線邏輯，請輸入 Key 測試。</div>
+      </div>
+      <div class="input-area">
+        <div class="api-row">
+          <input type="password" class="api-inp" id="akey" placeholder="在此輸入 AIza... 開頭的 Key">
+          <button class="btn" onclick="connect()">⚡ 啟動連線</button>
+        </div>
+        <div class="chat-row">
+          <input type="text" class="chat-inp" id="cinp" placeholder="等待連線..." onkeydown="if(event.key==='Enter')send()" disabled>
+          <button class="btn" id="sbtn" onclick="send()" disabled>發送</button>
+        </div>
       </div>
     </div>
-    <div class="input-area">
-      <div class="api-row">
-        <input type="password" class="api-inp" id="akey" placeholder="輸入以 AIza 開頭的 Gemini Key...">
-        <button class="conn-btn" onclick="connect()">⚡ 連線</button>
-      </div>
-      <div class="chat-row">
-        <input type="text" class="chat-inp" id="cinp" placeholder="連線成功後即可輸入指令..." onkeydown="if(event.key==='Enter')send()">
-        <button class="send-btn" id="sbtn" onclick="send()" disabled>發送</button>
-      </div>
+    <div class="sidebar" style="border-right:none;border-left:1px solid var(--border);">
+      <div id="log"></div>
     </div>
   </div>
-  <div class="sidebar-right">
-    <div class="sec-hdr">// 系統日誌</div>
-    <div id="log"></div>
-  </div>
-</div>
 </div>
 
 <script type="module">
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
 
-let key='', connected=false, geminiChat=null;
+let genAI, model, chat, connected = false;
 
+// 核心連線邏輯
 window.connect = async function() {
-  key = document.getElementById('akey').value.trim();
-  if(!key) { alert('請輸入 Key'); return; }
-  log('正在嘗試連線至 V1 正式版路徑...');
+  const key = document.getElementById('akey').value.trim();
+  if(!key) return alert("請輸入 API Key");
   
+  log("開始連線程序...");
   try {
-    const genAI = new GoogleGenerativeAI(key);
-    // 【核心修正】強制指定 apiVersion: 'v1'，避免 v1beta 報錯
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    genAI = new GoogleGenerativeAI(key);
     
-    geminiChat = model.startChat({ history: [] });
-    const result = await geminiChat.sendMessage("你好，請回覆『連線成功』。");
-    const reply = result.response.text();
-    
-    connected = true;
-    document.getElementById('cdot').className = 'dot on';
-    document.getElementById('ctxt').textContent = '已連線';
-    document.getElementById('sbtn').disabled = false;
-    log('連線成功！系統已就緒。');
-    addMsg('SYS', reply);
-  } catch (e) {
-    log('連線失敗：' + e.message);
-    alert('連線失敗，請檢查 Key。錯誤代碼：' + e.message);
+    // 策略：嘗試多個模型名稱，直到一個成功為止
+    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    let success = false;
+    let errorLog = "";
+
+    for (let mName of modelsToTry) {
+      try {
+        log(`嘗試模型: ${mName}...`);
+        // 不指定版本，讓 SDK 自己選最穩定的
+        model = genAI.getGenerativeModel({ model: mName });
+        chat = model.startChat({ history: [] });
+        const result = await chat.sendMessage("Hi");
+        if(result) {
+          success = true;
+          log(`連線成功！使用模型: ${mName}`);
+          break;
+        }
+      } catch (e) {
+        errorLog += `${mName}: ${e.message}\n`;
+        continue; 
+      }
+    }
+
+    if(success) {
+      connected = true;
+      document.getElementById('cdot').className = 'dot on';
+      document.getElementById('ctxt').textContent = 'ONLINE';
+      document.getElementById('sbtn').disabled = false;
+      document.getElementById('cinp').disabled = false;
+      document.getElementById('cinp').placeholder = "請輸入指令...";
+      addMsg("SYS", "連線完全成功。指揮中心已就緒。");
+    } else {
+      throw new Error("所有模型嘗試皆失敗。\n" + errorLog);
+    }
+
+  } catch (err) {
+    log("連線失敗。");
+    alert("連線失敗！這可能是 Google API 暫時限制了您的 Key。請確認在 Google AI Studio 中已啟用 Gemini API。\n\n詳細錯誤：" + err.message);
   }
 };
 
@@ -133,35 +130,27 @@ window.send = async function() {
   const msg = inp.value.trim();
   if(!msg || !connected) return;
   
-  addMsg('USER', msg);
-  inp.value = '';
-  log('發送指令...');
-  
+  addMsg("USER", msg);
+  inp.value = "";
   try {
-    const result = await geminiChat.sendMessage(msg);
-    addMsg('AI', result.response.text());
-    log('回傳完成');
+    const result = await chat.sendMessage(msg);
+    addMsg("AI", result.response.text());
   } catch (e) {
-    log('發送失敗：' + e.message);
+    addMsg("SYS", "發送失敗: " + e.message);
   }
 };
 
 function addMsg(role, txt) {
   const c = document.getElementById('chat');
-  c.innerHTML += `<div class="msg ${role==='USER'?'u':''}" style="margin-bottom:10px">
-    <div style="font-size:10px;color:var(--gold)">// ${role}</div>
-    <div class="bubble">${txt}</div>
-  </div>`;
+  c.innerHTML += `<div class="msg ${role==='USER'?'u':''}"><div style="font-size:10px;margin-bottom:4px;color:var(--text3)">${role}</div><div class="bubble">${txt}</div></div>`;
   c.scrollTop = c.scrollHeight;
 }
 
-function log(txt) {
+function log(t) {
   const l = document.getElementById('log');
-  l.innerHTML += `<div class="log-entry">[${new Date().toLocaleTimeString()}] ${txt}</div>`;
+  l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${t}</div>`;
   l.scrollTop = l.scrollHeight;
 }
-
-setInterval(() => { document.getElementById('clk').textContent = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
