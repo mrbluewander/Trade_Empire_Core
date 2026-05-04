@@ -6,143 +6,120 @@
 <title>Trade Empire Core — 指揮中心</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#080c10;--bg2:#0d1520;--bg3:#111d2e;
-    --border:#1a3a5c;--border2:#1e4976;
-    --gold:#c9a84c;--gold2:#e8c97a;
-    --text:#d4e8f0;--text2:#7a9bb5;--text3:#4a6a80;
-    --accent:#1a6aaa;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow:hidden;}
-  .layout{display:grid;grid-template-rows:auto 1fr;height:100vh;}
-  header{padding:15px 25px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;}
-  .status-pill{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;}
-  .dot{width:8px;height:8px;border-radius:50%;background:#555;}
-  .dot.on{background:#39e07a;box-shadow:0 0 8px #39e07a;}
-  .main{display:grid;grid-template-columns:250px 1fr 250px;overflow:hidden;}
-  .sidebar{border-right:1px solid var(--border);padding:10px;background:rgba(0,0,0,0.2);}
-  .main-center{display:flex;flex-direction:column;background:var(--bg);}
-  .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:15px;}
-  .bubble{padding:12px;border:1px solid var(--border);background:var(--bg2);max-width:85%;border-radius:4px;word-break:break-all;}
-  .msg.u{align-self:flex-end;}
-  .msg.u .bubble{border-color:var(--accent);background:rgba(26,106,170,0.1);}
-  .input-area{padding:15px;border-top:1px solid var(--border);background:var(--bg2);}
-  .api-row{display:flex;gap:10px;margin-bottom:10px;}
-  .api-inp{flex:1;padding:8px;background:#000;border:1px solid var(--border);color:var(--gold);font-family:monospace;}
-  .chat-row{display:flex;gap:10px;}
-  .chat-inp{flex:1;padding:10px;background:#000;border:1px solid var(--border2);color:#fff;}
-  .btn{padding:8px 20px;cursor:pointer;font-weight:700;border:1px solid var(--gold);background:transparent;color:var(--gold);}
-  .btn:hover{background:var(--gold);color:#000;}
-  .btn:disabled{opacity:0.3;cursor:not-allowed;}
-  #log{font-family:'Share Tech Mono',monospace;font-size:10px;padding:10px;color:var(--text3);overflow-y:auto;height:100%;}
+  :root { --bg:#080c10; --gold:#c9a84c; --gold2:#e8c97a; --border:#1a3a5c; --text:#d4e8f0; }
+  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; margin:0; height:100vh; overflow:hidden; }
+  .layout{ display:grid; grid-template-rows: auto 1fr; height:100vh; }
+  header{ padding:15px 25px; border-bottom:1px solid var(--border); background:#0d1520; display:flex; justify-content:space-between; }
+  .main{ display:grid; grid-template-columns: 1fr 300px; height:100%; overflow:hidden; }
+  .chat-area{ flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; }
+  .bubble{ padding:12px; border:1px solid var(--border); background:#0d1520; border-radius:4px; max-width:90%; }
+  .input-area{ padding:15px; background:#0d1520; border-top:1px solid var(--border); }
+  .api-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .api-inp{ flex:1; padding:10px; background:#000; border:1px solid var(--border); color:var(--gold); }
+  .chat-inp{ flex:1; padding:10px; background:#000; border:1px solid var(--border); color:#fff; width:100%; box-sizing:border-box; }
+  .btn{ padding:10px 20px; cursor:pointer; border:1px solid var(--gold); background:transparent; color:var(--gold); font-weight:700; }
+  .btn:hover{ background:var(--gold); color:#000; }
+  #log{ font-family:monospace; font-size:11px; padding:10px; color:#4a6a80; overflow-y:auto; }
 </style>
 </head>
 <body>
 <div class="layout">
   <header>
-    <div><strong style="color:var(--gold2);letter-spacing:2px;">TRADE EMPIRE CORE v2.5</strong></div>
-    <div class="status-pill"><div class="dot" id="cdot"></div><span id="ctxt">OFFLINE</span></div>
+    <div style="color:var(--gold2); font-weight:700;">TRADE EMPIRE CORE v2.6 // 直連修復版</div>
+    <div id="status" style="font-family:monospace; font-size:12px; color:#555;">● STANDBY</div>
   </header>
   <div class="main">
-    <div class="sidebar">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:10px;">// 系統狀態</div>
-      <div style="font-size:12px;color:var(--gold2);">核心連線測試中...</div>
-    </div>
-    <div class="main-center">
-      <div class="chat-area" id="chat">
-        <div class="bubble">統帥，這是 <strong>v2.5 終極穩定版</strong>。我已經改進了連線邏輯，請輸入 Key 測試。</div>
+    <div style="display:flex; flex-direction:column; overflow:hidden;">
+      <div id="chat" class="chat-area">
+        <div class="bubble">統帥，我們改用「直連協定」。請貼上 Key 並點擊連線。<br>如果成功，我會立刻回報。</div>
       </div>
       <div class="input-area">
         <div class="api-row">
-          <input type="password" class="api-inp" id="akey" placeholder="在此輸入 AIza... 開頭的 Key">
-          <button class="btn" onclick="connect()">⚡ 啟動連線</button>
+          <input type="password" id="akey" class="api-inp" placeholder="在此輸入 API Key (AIza...)">
+          <button class="btn" onclick="testConn()">⚡ 連線測試</button>
         </div>
-        <div class="chat-row">
-          <input type="text" class="chat-inp" id="cinp" placeholder="等待連線..." onkeydown="if(event.key==='Enter')send()" disabled>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="cinp" class="chat-inp" placeholder="等待連線..." onkeydown="if(event.key==='Enter')send()" disabled>
           <button class="btn" id="sbtn" onclick="send()" disabled>發送</button>
         </div>
       </div>
     </div>
-    <div class="sidebar" style="border-right:none;border-left:1px solid var(--border);">
-      <div id="log"></div>
-    </div>
+    <div id="log" style="border-left:1px solid var(--border);"></div>
   </div>
 </div>
 
-<script type="module">
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
+<script>
+let API_KEY = '';
+let connected = false;
 
-let genAI, model, chat, connected = false;
-
-// 核心連線邏輯
-window.connect = async function() {
-  const key = document.getElementById('akey').value.trim();
-  if(!key) return alert("請輸入 API Key");
+async function testConn() {
+  API_KEY = document.getElementById('akey').value.trim();
+  if(!API_KEY) return alert("請輸入 Key");
   
-  log("開始連線程序...");
+  log("啟動 HTTP 直連協定...");
+  
+  // 嘗試直接發送 HTTP POST 請求，完全繞過 SDK
   try {
-    genAI = new GoogleGenerativeAI(key);
-    
-    // 策略：嘗試多個模型名稱，直到一個成功為止
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
-    let success = false;
-    let errorLog = "";
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: "你好，請說：連線成功。" }] }]
+      })
+    });
 
-    for (let mName of modelsToTry) {
-      try {
-        log(`嘗試模型: ${mName}...`);
-        // 不指定版本，讓 SDK 自己選最穩定的
-        model = genAI.getGenerativeModel({ model: mName });
-        chat = model.startChat({ history: [] });
-        const result = await chat.sendMessage("Hi");
-        if(result) {
-          success = true;
-          log(`連線成功！使用模型: ${mName}`);
-          break;
-        }
-      } catch (e) {
-        errorLog += `${mName}: ${e.message}\n`;
-        continue; 
-      }
-    }
+    const data = await response.json();
 
-    if(success) {
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
       connected = true;
-      document.getElementById('cdot').className = 'dot on';
-      document.getElementById('ctxt').textContent = 'ONLINE';
-      document.getElementById('sbtn').disabled = false;
+      document.getElementById('status').style.color = '#39e07a';
+      document.getElementById('status').innerText = '● ONLINE';
       document.getElementById('cinp').disabled = false;
+      document.getElementById('sbtn').disabled = false;
       document.getElementById('cinp').placeholder = "請輸入指令...";
-      addMsg("SYS", "連線完全成功。指揮中心已就緒。");
+      addMsg("AI", data.candidates[0].content.parts[0].text);
+      log("直連成功！");
     } else {
-      throw new Error("所有模型嘗試皆失敗。\n" + errorLog);
+      throw new Error(JSON.stringify(data.error || "未知錯誤"));
     }
-
   } catch (err) {
-    log("連線失敗。");
-    alert("連線失敗！這可能是 Google API 暫時限制了您的 Key。請確認在 Google AI Studio 中已啟用 Gemini API。\n\n詳細錯誤：" + err.message);
+    log("直連失敗: " + err.message);
+    alert("連線失敗！請確認 API Key 是否正確。\n\n詳細錯誤：" + err.message);
   }
-};
+}
 
-window.send = async function() {
+async function send() {
   const inp = document.getElementById('cinp');
   const msg = inp.value.trim();
   if(!msg || !connected) return;
   
   addMsg("USER", msg);
   inp.value = "";
+  log("處理指令中...");
+
   try {
-    const result = await chat.sendMessage(msg);
-    addMsg("AI", result.response.text());
-  } catch (e) {
-    addMsg("SYS", "發送失敗: " + e.message);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: msg }] }]
+      })
+    });
+    const data = await response.json();
+    const reply = data.candidates[0].content.parts[0].text;
+    addMsg("AI", reply);
+    log("回傳成功");
+  } catch (err) {
+    addMsg("SYS", "發送失敗: " + err.message);
   }
-};
+}
 
 function addMsg(role, txt) {
   const c = document.getElementById('chat');
-  c.innerHTML += `<div class="msg ${role==='USER'?'u':''}"><div style="font-size:10px;margin-bottom:4px;color:var(--text3)">${role}</div><div class="bubble">${txt}</div></div>`;
+  c.innerHTML += `<div style="margin-bottom:10px;">
+    <div style="font-size:10px; color:#4a6a80; margin-bottom:2px;">// ${role}</div>
+    <div class="bubble">${txt}</div>
+  </div>`;
   c.scrollTop = c.scrollHeight;
 }
 
