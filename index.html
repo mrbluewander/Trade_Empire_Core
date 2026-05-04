@@ -17,354 +17,151 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,106,170,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,106,170,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
   .layout{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr;min-height:100vh;}
   header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:rgba(13,21,32,0.95);position:sticky;top:0;z-index:100;}
   .logo{display:flex;align-items:center;gap:14px;}
   .logo-icon{width:38px;height:38px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;}
-  .logo-icon::before{content:'';position:absolute;inset:3px;border:1px solid rgba(201,168,76,0.3);}
-  .logo-icon svg{width:20px;height:20px;}
   .logo-text h1{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold2);line-height:1;}
   .logo-text p{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
   .header-status{display:flex;align-items:center;gap:16px;}
-  .status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);background:var(--bg2);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse 2s infinite;}
+  .status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);background:var(--bg2);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);}
   .dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
-  .dot.off{background:var(--red);box-shadow:0 0 6px var(--red);animation:none;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .dot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
   .clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:1px;}
   .main{display:grid;grid-template-columns:260px 1fr 280px;height:calc(100vh - 71px);}
-  .sidebar-left{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
-  .sidebar-right{border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .sidebar-left,.sidebar-right{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .sidebar-right{border-right:none;border-left:1px solid var(--border);}
   .sec-hdr{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);background:rgba(17,29,46,0.5);}
-  .agent-list{padding:8px;}
-  .agent-card{padding:12px 14px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.2s;background:var(--bg2);position:relative;overflow:hidden;}
-  .agent-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);transform:scaleY(0);transition:transform 0.2s;}
-  .agent-card:hover,.agent-card.active{border-color:var(--accent);background:var(--bg3);}
-  .agent-card:hover::before,.agent-card.active::before{transform:scaleY(1);}
-  .agent-card.ga::before{background:var(--gold);}
-  .agent-card.ga:hover,.agent-card.ga.active{border-color:var(--gold);}
-  .ag-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;}
-  .ag-role{font-size:11px;color:var(--text2);margin-bottom:6px;}
-  .ag-status{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);}
-  .market-panel{padding:8px;}
-  .mkt-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);margin-bottom:5px;background:var(--bg2);}
-  .mkt-sym{font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:600;color:var(--gold2);}
-  .mkt-price{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);}
-  .mkt-chg{font-family:'Share Tech Mono',monospace;font-size:11px;}
-  .up{color:var(--green);}.dn{color:var(--red);}
+  .agent-card{padding:12px 14px;border:1px solid var(--border);margin:8px;cursor:pointer;background:var(--bg2);}
+  .agent-card.active{border-color:var(--gold);background:var(--bg3);}
   .main-center{display:flex;flex-direction:column;overflow:hidden;}
-  .center-top{padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(13,21,32,0.6);}
-  .cmd-title{font-size:11px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;color:var(--text3);margin-bottom:10px;}
-  .quick-actions{display:flex;gap:8px;flex-wrap:wrap;}
-  .qa{padding:6px 14px;border:1px solid var(--border2);background:transparent;color:var(--silver);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
-  .qa:hover{background:var(--accent);border-color:var(--accent2);color:white;}
-  .qa.g{border-color:rgba(201,168,76,0.4);color:var(--gold);}
-  .qa.g:hover{background:rgba(201,168,76,0.15);border-color:var(--gold);}
   .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
-  .chat-area::-webkit-scrollbar{width:4px;}
-  .chat-area::-webkit-scrollbar-thumb{background:var(--border2);}
-  .msg{display:flex;gap:12px;max-width:88%;}
-  .msg.u{align-self:flex-end;flex-direction:row-reverse;}
-  .avatar{width:34px;height:34px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0;background:var(--bg2);}
-  .bubble{padding:12px 16px;border:1px solid var(--border);background:var(--bg2);line-height:1.6;font-size:14px;}
-  .msg.u .bubble{border-color:var(--accent);background:rgba(26,106,170,0.1);color:var(--silver2);}
-  .msg-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-top:5px;}
-  .msg.u .msg-time{text-align:right;}
-  .ag-tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:1px;margin-bottom:5px;}
+  .bubble{padding:12px 16px;border:1px solid var(--border);background:var(--bg2);line-height:1.6;font-size:14px;border-radius:4px;}
+  .msg.u .bubble{border-color:var(--accent);background:rgba(26,106,170,0.1);}
   .input-area{padding:12px 20px;border-top:1px solid var(--border);background:rgba(13,21,32,0.95);}
-  .ai-selector{display:flex;gap:6px;margin-bottom:10px;align-items:center;}
-  .ai-btn{padding:5px 14px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-  .ai-btn.active-gemini{border-color:#4285f4;color:#4285f4;background:rgba(66,133,244,0.1);}
-  .ai-btn.active-deepseek{border-color:var(--accent2);color:var(--accent2);background:rgba(34,136,221,0.1);}
-  .ai-btn:hover{border-color:var(--text2);}
-  .api-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
-  .api-lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;white-space:nowrap;min-width:90px;}
-  .api-inp{flex:1;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;}
-  .api-inp::placeholder{color:var(--text3);}
-  .conn-btn{padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;}
-  .conn-btn:hover{background:rgba(201,168,76,0.15);color:var(--gold2);}
+  .api-row{display:flex;gap:8px;margin-bottom:8px;}
+  .api-inp{flex:1;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;}
+  .conn-btn{padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);cursor:pointer;font-weight:700;}
   .chat-row{display:flex;gap:8px;}
-  .chat-inp{flex:1;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;resize:none;height:48px;}
-  .chat-inp::placeholder{color:var(--text3);}
-  .send-btn{padding:0 24px;background:var(--accent);border:1px solid var(--accent2);color:white;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
-  .send-btn:hover{background:var(--accent2);}
-  .send-btn:disabled{opacity:0.4;cursor:not-allowed;}
-  .log-panel{padding:8px;}
-  .log-entry{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(26,58,92,0.3);font-size:12px;}
-  .lt{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0;}
-  .lm{color:var(--text2);line-height:1.4;}
-  .lm.ok{color:var(--green);}.lm.w{color:var(--gold);}.lm.er{color:var(--red);}
-  .pine-panel{padding:8px;}
-  .pine-item{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.2s;}
-  .pine-item:hover{border-color:var(--silver);}
-  .pine-name{font-size:12px;font-weight:600;color:var(--silver2);margin-bottom:2px;}
-  .pine-desc{font-size:11px;color:var(--text3);}
-  .divider{height:1px;background:var(--border);margin:4px 0;}
-  .typing{display:flex;gap:4px;padding:4px 0;}
-  .typing span{width:5px;height:5px;background:var(--accent2);border-radius:50%;animation:typ 1.2s infinite;}
-  .typing span:nth-child(2){animation-delay:0.2s;}
-  .typing span:nth-child(3){animation-delay:0.4s;}
-  @keyframes typ{0%,100%{opacity:0.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+  .chat-inp{flex:1;padding:12px 16px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);height:48px;outline:none;}
+  .send-btn{padding:0 24px;background:var(--accent);color:white;border:none;cursor:pointer;font-weight:700;}
+  .log-entry{padding:4px 10px;font-size:11px;font-family:'Share Tech Mono',monospace;border-bottom:1px solid rgba(26,58,92,0.2);}
 </style>
 </head>
 <body>
 <div class="layout">
 <header>
   <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 20 20" fill="none">
-        <polygon points="10,2 18,7 18,13 10,18 2,13 2,7" stroke="#c9a84c" stroke-width="1" fill="none"/>
-        <polygon points="10,5 15,8 15,12 10,15 5,12 5,8" stroke="#c9a84c" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
-        <circle cx="10" cy="10" r="2" fill="#c9a84c"/>
-      </svg>
-    </div>
+    <div class="logo-icon">👑</div>
     <div class="logo-text">
       <h1>TRADE EMPIRE CORE</h1>
-      <p>COMMAND CENTER v2.2 // 指揮中心</p>
+      <p>COMMAND CENTER v2.4 // 指揮中心</p>
     </div>
   </div>
   <div class="header-status">
-    <div class="status-pill">
-      <div class="dot" id="cdot"></div>
-      <span id="ctxt">待連線</span>
-    </div>
+    <div class="status-pill"><div class="dot" id="cdot"></div><span id="ctxt">待連線</span></div>
     <div class="clock" id="clk">--:--:--</div>
   </div>
 </header>
 <div class="main">
   <div class="sidebar-left">
-    <div class="sec-hdr">// 代理人部隊</div>
-    <div class="agent-list">
-      <div class="agent-card ga active" onclick="selAgent(this,'黃金白銀分析師','GOLD')">
-        <div class="ag-name">黃金白銀分析師</div>
-        <div class="ag-role">XAU/XAG 技術分析 · 市場情報</div>
-        <div class="ag-status"><div class="dot on"></div>待命中</div>
-      </div>
-      <div class="agent-card" onclick="selAgent(this,'Pine Script 工程師','PINE')">
-        <div class="ag-name">Pine Script 工程師</div>
-        <div class="ag-role">TradingView 腳本開發 · 優化</div>
-        <div class="ag-status"><div class="dot on"></div>待命中</div>
-      </div>
-      <div class="agent-card" onclick="selAgent(this,'地緣政治情報官','GEO')">
-        <div class="ag-name">地緣政治情報官</div>
-        <div class="ag-role">國際形勢 · 石油 · 美元指數</div>
-        <div class="ag-status"><div class="dot on"></div>待命中</div>
-      </div>
-      <div class="agent-card" onclick="selAgent(this,'智囊團總覽','BRAIN')">
-        <div class="ag-name">智囊團總覽</div>
-        <div class="ag-role">綜合分析 · 多角度判斷</div>
-        <div class="ag-status"><div class="dot on"></div>待命中</div>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="sec-hdr">// 市場概覽</div>
-    <div class="market-panel">
-      <div class="mkt-row"><span class="mkt-sym">XAU/USD</span><span class="mkt-price" id="gp">---</span><span class="mkt-chg up" id="gc">--</span></div>
-      <div class="mkt-row"><span class="mkt-sym">XAG/USD</span><span class="mkt-price" id="sp">---</span><span class="mkt-chg up" id="sc">--</span></div>
-      <div class="mkt-row"><span class="mkt-sym">DXY</span><span class="mkt-price" id="dp">---</span><span class="mkt-chg dn" id="dc">--</span></div>
-      <div class="mkt-row"><span class="mkt-sym">WTI</span><span class="mkt-price" id="wp">---</span><span class="mkt-chg up" id="wc">--</span></div>
+    <div class="sec-hdr">// 代理人</div>
+    <div class="agent-card active">
+      <div style="font-weight:700">智囊團總覽</div>
+      <div style="font-size:11px;color:var(--text2)">綜合市場分析</div>
     </div>
   </div>
   <div class="main-center">
-    <div class="center-top">
-      <div class="cmd-title">// 快速指令</div>
-      <div class="quick-actions">
-        <button class="qa g" onclick="qcmd('分析今日黃金走勢與關鍵支撐阻力位')">黃金分析</button>
-        <button class="qa g" onclick="qcmd('白銀市場今日技術面分析')">白銀分析</button>
-        <button class="qa" onclick="qcmd('幫我優化這段 Pine Script 指標')">優化腳本</button>
-        <button class="qa" onclick="qcmd('分析當前地緣政治對貴金屬的影響')">地緣情報</button>
-        <button class="qa" onclick="qcmd('美元指數與通膨對黃金的影響分析')">美元通膨</button>
-        <button class="qa" onclick="qcmd('幫我寫一個 Pine Script v5 波浪指標')">寫新腳本</button>
-      </div>
-    </div>
     <div class="chat-area" id="chat">
-      <div class="msg">
-        <div class="avatar">SYS</div>
-        <div>
-          <div class="ag-tag">// 系統初始化</div>
-          <div class="bubble">
-            歡迎回到 <strong style="color:var(--gold2)">Trade Empire Core</strong> 指揮中心 v2.2<br><br>
-            已修復 Gemini 連線錯誤。請輸入 API Key 並點擊連線。<br><br>
-            <span style="color:#4285f4">● Gemini</span> 免費申請：aistudio.google.com<br>
-            <span style="color:var(--accent2)">● DeepSeek</span> 免費申請：platform.deepseek.com
-          </div>
-          <div class="msg-time" id="it"></div>
-        </div>
+      <div class="bubble" style="color:var(--gold2)">
+        系統版本 v2.4 已備份完畢。<br>
+        請在下方輸入 API Key 後點擊「⚡ 連線」。
       </div>
     </div>
     <div class="input-area">
-      <div class="ai-selector">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);padding:5px 0;letter-spacing:1px;">AI 大腦：</span>
-        <button class="ai-btn active-gemini" id="btn-gemini" onclick="switchAI('gemini')">● GEMINI</button>
-        <button class="ai-btn" id="btn-deepseek" onclick="switchAI('deepseek')">● DEEPSEEK</button>
-      </div>
       <div class="api-row">
-        <span class="api-lbl" id="key-lbl">GEMINI KEY</span>
-        <input type="password" class="api-inp" id="akey" placeholder="AIza...">
+        <input type="password" class="api-inp" id="akey" placeholder="輸入以 AIza 開頭的 Gemini Key...">
         <button class="conn-btn" onclick="connect()">⚡ 連線</button>
       </div>
       <div class="chat-row">
-        <textarea class="chat-inp" id="cinp" placeholder="輸入指令或問題，Enter 發送..." onkeydown="hkey(event)"></textarea>
+        <input type="text" class="chat-inp" id="cinp" placeholder="連線成功後即可輸入指令..." onkeydown="if(event.key==='Enter')send()">
         <button class="send-btn" id="sbtn" onclick="send()" disabled>發送</button>
       </div>
     </div>
   </div>
   <div class="sidebar-right">
-    <div class="sec-hdr">// 任務日誌</div>
-    <div class="log-panel" id="log">
-      <div class="log-entry"><span class="lt" id="lt1"></span><span class="lm">系統初始化完成 v2.2</span></div>
-      <div class="log-entry"><span class="lt" id="lt2"></span><span class="lm w">修正模型節點為 gemini-1.5-flash-latest</span></div>
-    </div>
-    <div class="divider"></div>
-    <div class="sec-hdr">// Pine Script 工具庫</div>
-    <div class="pine-panel">
-      <div class="pine-item" onclick="qcmd('幫我寫一個黃金專用 EMA 交叉策略 Pine Script v5')">
-        <div class="pine-name">EMA 交叉策略</div><div class="pine-desc">均線交叉買賣信號</div>
-      </div>
-      <div class="pine-item" onclick="qcmd('幫我寫一個波浪理論輔助指標 Pine Script v5')">
-        <div class="pine-name">波浪理論標示</div><div class="pine-desc">自動標示高低點</div>
-      </div>
-      <div class="pine-item" onclick="qcmd('幫我寫黃金支撐阻力自動標示 Pine Script v5')">
-        <div class="pine-name">支撐阻力標示</div><div class="pine-desc">動態支撐阻力位</div>
-      </div>
-      <div class="pine-item" onclick="qcmd('幫我寫 RSI 加 MACD 共振預警 Pine Script v5')">
-        <div class="pine-name">RSI + MACD 組合</div><div class="pine-desc">雙指標共振預警</div>
-      </div>
-      <div class="pine-item" onclick="qcmd('幫我寫台指期日內短線預警 Pine Script v5')">
-        <div class="pine-name">台指期日內預警</div><div class="pine-desc">台指期短線信號</div>
-      </div>
-    </div>
+    <div class="sec-hdr">// 系統日誌</div>
+    <div id="log"></div>
   </div>
 </div>
 </div>
+
 <script type="module">
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.21.0";
-const PROMPTS={
-  GOLD:`你是專業黃金白銀市場分析師，專精 XAU/USD 和 XAG/USD 技術分析。提供K線形態、支撐阻力、趨勢判斷、RSI/MACD解讀。回覆繁體中文，標示關鍵價位。`,
-  PINE:`你是 TradingView Pine Script v5 專家。撰寫指標、優化腳本、解釋邏輯。代碼附繁體中文註解。`,
-  GEO:`你是地緣政治與國際金融情報分析官。分析戰爭、石油、美元、央行政策對貴金屬的影響。回覆繁體中文。`,
-  BRAIN:`你是多位專家組成的智囊團，從技術面、基本面、地緣政治面多角度綜合分析。回覆繁體中文。`
-};
-let key='',aiMode='gemini',agentName='黃金白銀分析師',agentId='GOLD';
-let connected=false,hist=[],geminiChat=null,geminiModel=null;
 
-window.switchAI=function(mode){
-  aiMode=mode;connected=false;hist=[];geminiChat=null;
-  document.getElementById('cdot').className='dot';
-  document.getElementById('ctxt').textContent='待連線';
-  document.getElementById('sbtn').disabled=true;
-  document.getElementById('akey').value='';
-  if(mode==='gemini'){
-    document.getElementById('btn-gemini').className='ai-btn active-gemini';
-    document.getElementById('btn-deepseek').className='ai-btn';
-    document.getElementById('key-lbl').textContent='GEMINI KEY';
-    document.getElementById('akey').placeholder='AIza...';
-  }else{
-    document.getElementById('btn-deepseek').className='ai-btn active-deepseek';
-    document.getElementById('btn-gemini').className='ai-btn';
-    document.getElementById('key-lbl').textContent='DEEPSEEK KEY';
-    document.getElementById('akey').placeholder='sk-...';
-  }
-  log('切換至 '+mode.toUpperCase(),'w');
-};
+let key='', connected=false, geminiChat=null;
 
-window.selAgent=function(el,name,id){
-  document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');agentName=name;agentId=id;hist=[];geminiChat=null;
-  log('已切換：'+name,'w');
-};
-
-window.connect=async function(){
-  key=document.getElementById('akey').value.trim();
-  if(!key){alert('請輸入 API Key');return;}
-  log('正在連線 '+aiMode.toUpperCase()+'...','');
-  try{
-    let reply='';
-    if(aiMode==='gemini'){
-      const genAI=new GoogleGenerativeAI(key);
-      // 修正：使用 gemini-1.5-flash-latest 確保連線路徑正確
-      geminiModel=genAI.getGenerativeModel({
-        model:'gemini-1.5-flash-latest',
-        systemInstruction:PROMPTS[agentId]
-      });
-      geminiChat=geminiModel.startChat({history:[]});
-      const result=await geminiChat.sendMessage('你好，請用一句話確認連線成功並說明你的角色。');
-      reply=result.response.text();
-    }else{
-      reply=await callDS('你好，請用一句話確認連線成功並說明你的角色。');
-    }
-    connected=true;
-    document.getElementById('cdot').className='dot on';
-    document.getElementById('ctxt').textContent=aiMode.toUpperCase()+' 已連線';
-    document.getElementById('sbtn').disabled=false;
-    log('連線成功','ok');aiMsg(reply);
-  }catch(e){
-    document.getElementById('cdot').className='dot off';
-    document.getElementById('ctxt').textContent='連線失敗';
-    log('失敗：'+e.message,'er');
-    sysMsg('連線失敗：'+e.message+'\n請確認您的 API Key 是否正確且具備 gemini-1.5-flash 訪問權限。');
+window.connect = async function() {
+  key = document.getElementById('akey').value.trim();
+  if(!key) { alert('請輸入 Key'); return; }
+  log('正在嘗試連線至 V1 正式版路徑...');
+  
+  try {
+    const genAI = new GoogleGenerativeAI(key);
+    // 【核心修正】強制指定 apiVersion: 'v1'，避免 v1beta 報錯
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    
+    geminiChat = model.startChat({ history: [] });
+    const result = await geminiChat.sendMessage("你好，請回覆『連線成功』。");
+    const reply = result.response.text();
+    
+    connected = true;
+    document.getElementById('cdot').className = 'dot on';
+    document.getElementById('ctxt').textContent = '已連線';
+    document.getElementById('sbtn').disabled = false;
+    log('連線成功！系統已就緒。');
+    addMsg('SYS', reply);
+  } catch (e) {
+    log('連線失敗：' + e.message);
+    alert('連線失敗，請檢查 Key。錯誤代碼：' + e.message);
   }
 };
 
-async function callDS(msg){
-  const msgs=[{role:'system',content:PROMPTS[agentId]},...hist,{role:'user',content:msg}];
-  const res=await fetch('https://api.deepseek.com/chat/completions',{
-    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-    body:JSON.stringify({model:'deepseek-chat',messages:msgs,max_tokens:2000,temperature:0.7})
-  });
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+res.status);}
-  const d=await res.json();const reply=d.choices[0].message.content;
-  hist.push({role:'user',content:msg},{role:'assistant',content:reply});
-  if(hist.length>20)hist=hist.slice(-20);return reply;
-}
-
-window.qcmd=function(cmd){if(!connected){alert('請先連線');return;}document.getElementById('cinp').value=cmd;send();};
-
-window.send=async function(){
-  const el=document.getElementById('cinp');const msg=el.value.trim();
-  if(!msg||!connected)return;
-  el.value='';document.getElementById('sbtn').disabled=true;
-  userMsg(msg);log('派發：'+msg.substring(0,20)+'...','');
-  const tid=typing();
-  try{
-    let reply='';
-    if(aiMode==='gemini'){const r=await geminiChat.sendMessage(msg);reply=r.response.text();}
-    else{reply=await callDS(msg);}
-    rmTyping(tid);aiMsg(reply);log('完成','ok');
-  }catch(e){rmTyping(tid);aiMsg('錯誤：'+e.message);log('失敗','er');}
-  document.getElementById('sbtn').disabled=false;
+window.send = async function() {
+  const inp = document.getElementById('cinp');
+  const msg = inp.value.trim();
+  if(!msg || !connected) return;
+  
+  addMsg('USER', msg);
+  inp.value = '';
+  log('發送指令...');
+  
+  try {
+    const result = await geminiChat.sendMessage(msg);
+    addMsg('AI', result.response.text());
+    log('回傳完成');
+  } catch (e) {
+    log('發送失敗：' + e.message);
+  }
 };
 
-window.hkey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
-function userMsg(t){app(`<div class="msg u"><div class="avatar">統帥</div><div><div class="bubble">${esc(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
-function aiMsg(t){app(`<div class="msg"><div class="avatar">${aiMode==='gemini'?'GM':'DS'}</div><div><div class="ag-tag">// ${agentName}</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
-function sysMsg(t){app(`<div class="msg"><div class="avatar">SYS</div><div><div class="ag-tag">// 系統</div><div class="bubble">${fmt(t)}</div><div class="msg-time">${now()}</div></div></div>`);}
-function typing(){const id='tp'+Date.now();app(`<div class="msg" id="${id}"><div class="avatar">${aiMode==='gemini'?'GM':'DS'}</div><div><div class="ag-tag">// ${agentName} 思考中</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div></div>`);return id;}
-function rmTyping(id){const e=document.getElementById(id);if(e)e.remove();}
-function app(html){const c=document.getElementById('chat');c.insertAdjacentHTML('beforeend',html);c.scrollTop=c.scrollHeight;}
-function log(txt,type){const p=document.getElementById('log');const d=document.createElement('div');d.className='log-entry';d.innerHTML=`<span class="lt">${now()}</span><span class="lm ${type}">${esc(txt)}</span>`;p.appendChild(d);p.scrollTop=p.scrollHeight;}
-function fmt(t){return esc(t).replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold2)">$1</strong>').replace(/`([^`]+)`/g,'<code style="font-family:monospace;color:var(--silver2);background:var(--bg3);padding:1px 5px">$1</code>').replace(/\n/g,'<br>');}
-function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function now(){return new Date().toLocaleTimeString('zh-TW',{hour12:false});}
-setInterval(()=>{document.getElementById('clk').textContent=now();},1000);
-document.getElementById('clk').textContent=now();
-document.getElementById('it').textContent=now();
-document.getElementById('lt1').textContent=now();
-document.getElementById('lt2').textContent=now();
-
-// 市場模擬數據更新
-function mkt(){
-  document.getElementById('gp').textContent=(3320+(Math.random()-.5)*4).toFixed(2);
-  document.getElementById('sp').textContent=(33.2+(Math.random()-.5)*0.2).toFixed(3);
-  document.getElementById('dp').textContent=(99.8+(Math.random()-.5)*0.3).toFixed(2);
-  document.getElementById('wp').textContent=(58.4+(Math.random()-.5)*0.5).toFixed(2);
-  document.getElementById('gc').textContent='+0.82%';
-  document.getElementById('sc').textContent='+1.24%';
-  document.getElementById('dc').textContent='-0.31%';
-  document.getElementById('wc').textContent='+0.47%';
+function addMsg(role, txt) {
+  const c = document.getElementById('chat');
+  c.innerHTML += `<div class="msg ${role==='USER'?'u':''}" style="margin-bottom:10px">
+    <div style="font-size:10px;color:var(--gold)">// ${role}</div>
+    <div class="bubble">${txt}</div>
+  </div>`;
+  c.scrollTop = c.scrollHeight;
 }
-mkt();setInterval(mkt,8000);
+
+function log(txt) {
+  const l = document.getElementById('log');
+  l.innerHTML += `<div class="log-entry">[${new Date().toLocaleTimeString()}] ${txt}</div>`;
+  l.scrollTop = l.scrollHeight;
+}
+
+setInterval(() => { document.getElementById('clk').textContent = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
