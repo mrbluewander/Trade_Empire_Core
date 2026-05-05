@@ -1,0 +1,15 @@
+name: 万象自動進化引擎
+on: [push] # 當您在網頁端下達任務並產生 Commit 時自動啟動
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 啟動小龍蝦邏輯
+        run: |
+          echo "正在同化網路資源..."
+          echo "啟動自我修復補丁..."
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
