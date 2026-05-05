@@ -2,66 +2,63 @@ import os
 import platform
 import socket
 import time
-import subprocess
-import json
 from datetime import datetime
+
+# ==========================================
+# LOBSTER GENESIS - 萬象基地實戰驅動 v1.0
+# 功能：同化環境偵測、探針掃描、自癒日誌
+# ==========================================
 
 class LobsterVanguard:
     def __init__(self):
-        self.status = "ACTIVE"
-        self.log_file = "system_heal.log"
-        self.birth_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    def environment_scan(self):
-        """全自動環境偵測：分析目前戰場規格"""
-        info = {
-            "os": platform.system(),
-            "node": platform.node(),
-            "cpu": platform.processor(),
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.version = "1.0.0"
+        self.log_file = "vanguard_healer.log"
+        
+    def get_env_data(self):
+        """環境同化：抓取目前系統的物理特徵"""
+        return {
+            "OS": platform.system(),
+            "OS_REL": platform.release(),
+            "ARCH": platform.machine(),
+            "TIME": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        return info
 
-    def network_latency_scan(self):
-        """網路延遲掃描：檢測通向外部資源的滲透路徑"""
-        targets = ["8.8.8.8", "github.com", "google.com"]
+    def network_probe(self):
+        """網路探針：檢測通向外部資源的延遲與存取權"""
+        targets = [("Google", "8.8.8.8"), ("GitHub", "140.82.112.3")]
         results = {}
-        for target in targets:
+        for name, ip in targets:
             start = time.time()
             try:
-                socket.create_connection((target, 80), timeout=2)
+                # 建立極短暫的連線測試
+                socket.create_connection((ip, 80), timeout=1)
                 latency = (time.time() - start) * 1000
-                results[target] = f"{latency:.2f}ms"
+                results[name] = f"{latency:.2f}ms"
             except:
-                results[target] = "TIMEOUT/BLOCKED"
+                results[name] = "BLOCKED"
         return results
 
-    def self_healing_log(self, message):
-        """系統自癒日誌：記錄每一次的同化與修補"""
+    def write_heal_log(self, status_msg):
+        """系統自癒日誌：記錄基地運作狀態"""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = f"[{timestamp}] [STATUS: {status_msg}]\n"
         with open(self.log_file, "a", encoding="utf-8") as f:
-            f.write(f"[{datetime.now()}] [SELF-HEAL] {message}\n")
+            f.write(log_entry)
 
-    def run_mission(self):
-        print("="*40)
-        print(f"萬象基地 - 成功展示腳本 v1.0")
-        print(f"激活時間: {self.birth_time}")
-        print("="*40)
+    def activate(self):
+        print(f"--- 萬象基地 CORE v8.0 / SUCCESS_DEMO ---")
+        env = self.get_env_data()
+        print(f"[*] 環境偵測: {env['OS']} {env['OS_REL']} ({env['ARCH']})")
         
-        # 1. 偵測環境
-        env = self.environment_scan()
-        print(f"> 環境偵測完成: {env['os']} ({env['node']})")
-        
-        # 2. 掃描網路
-        print("> 啟動小龍蝦網路探針...")
-        net = self.network_latency_scan()
-        for t, l in net.items():
-            print(f"  - 目標 {t}: {l}")
+        print("[*] 啟動小龍蝦探針掃描...")
+        net = self.network_probe()
+        for target, res in net.items():
+            print(f"    > {target}: {res}")
             
-        # 3. 寫入日誌
-        self.self_healing_log("基地展示任務成功執行。偵測到環境並完成網路通訊路徑確認。")
-        print("\n> [SUCCESS] 自癒日誌已更新。基地實體化進度：15%")
-        print("="*40)
+        self.write_heal_log("基地實體化任務成功執行")
+        print(f"[*] [SUCCESS] 自癒日誌 {self.log_file} 已更新。")
+        print(f"--- 任務序列結束 ---")
 
 if __name__ == "__main__":
     vanguard = LobsterVanguard()
-    vanguard.run_mission()
+    vanguard.activate()
